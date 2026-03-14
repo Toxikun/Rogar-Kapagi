@@ -415,6 +415,9 @@ public class CubeEscapeSetup
         // ====== DOĞU DUVAR (MOON PUZZLE) ======
         UI_MoonSetup.CreateUIMoonPuzzle();
 
+        // ====== GÜNEY DUVAR (SOUND COLOR PUZZLE) ======
+        UI_SoundColorPuzzleSetup.CreateUISoundColorPuzzle();
+
         Selection.activeGameObject = root;
         Debug.Log("Cube Escape sahne kurulumu tamamlandı!");
     }
