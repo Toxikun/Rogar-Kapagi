@@ -36,6 +36,9 @@ public class CubeEscapeSetup
             wallPanels.Add(wall);
         }
 
+        // Placeholder button counter
+        int placeholderCount = 1;
+
         // ====== KUZEY DUVAR (0) – Dolap + Tablo ======
         {
             GameObject wall = wallPanels[0];
@@ -51,12 +54,20 @@ public class CubeEscapeSetup
             CreateLabel(cabinet.transform, "DOLAP", 28, new Color(0.8f, 0.7f, 0.5f));
 
             // Tablo (ipucu)
-            Interactable painting = CreateInteractableButton(wall.transform, "Tablo",
+            Interactable painting = CreateInteractableButton(wall.transform, "TabloIpucu",
                 new Vector2(200, 100), new Vector2(200, 160),
                 new Color(0.5f, 0.35f, 0.15f), 0);
             painting.type = InteractableType.Clue;
             painting.clueMessage = "Tablonun arkasında bir not var:\n\"Şifre: 3 - 7 - 1\"";
-            CreateLabel(painting.transform, "TABLO", 24, new Color(0.9f, 0.8f, 0.6f));
+            CreateLabel(painting.transform, "TABLO İPUCU", 24, new Color(0.9f, 0.8f, 0.6f));
+
+            // Placeholder 1
+            Interactable p1 = CreateInteractableButton(wall.transform, "Buton " + placeholderCount++,
+                new Vector2(0, -350), new Vector2(120, 120),
+                new Color(0.2f, 0.2f, 0.2f), 0);
+            p1.type = InteractableType.Atmosphere;
+            p1.clueMessage = "Bu buton henüz bir işe yaramıyor.";
+            CreateLabel(p1.transform, "Buton " + (placeholderCount-1), 18, Color.gray);
 
             // Duvar etiketi
             CreateWallTitle(wall.transform, "Kuzey Duvar");
@@ -69,8 +80,8 @@ public class CubeEscapeSetup
             Interactable window = CreateInteractableButton(wall.transform, "Pencere",
                 new Vector2(0, 100), new Vector2(250, 300),
                 new Color(0.15f, 0.20f, 0.35f), 1);
-            window.type = InteractableType.Atmosphere;
-            window.clueMessage = "Dışarıda yoğun bir sis var.\nHiçbir şey göremiyorsun...";
+            window.type = InteractableType.Puzzle;
+            window.clueMessage = "";
             CreateLabel(window.transform, "PENCERE", 24, new Color(0.5f, 0.6f, 0.8f));
 
             Interactable clock = CreateInteractableButton(wall.transform, "Saat",
@@ -79,6 +90,14 @@ public class CubeEscapeSetup
             clock.type = InteractableType.Atmosphere;
             clock.clueMessage = "Saat durmuş...\nDuvardan tıkırtı sesleri geliyor.";
             CreateLabel(clock.transform, "SAAT", 22, new Color(0.8f, 0.7f, 0.5f));
+
+            // Placeholder 2
+            Interactable p2 = CreateInteractableButton(wall.transform, "Buton " + placeholderCount++,
+                new Vector2(220, -300), new Vector2(100, 100),
+                new Color(0.2f, 0.2f, 0.2f), 1);
+            p2.type = InteractableType.Atmosphere;
+            p2.clueMessage = "...";
+            CreateLabel(p2.transform, "Buton " + (placeholderCount-1), 18, Color.gray);
 
             CreateWallTitle(wall.transform, "Doğu Duvar");
         }
@@ -98,26 +117,33 @@ public class CubeEscapeSetup
             // Kasa (şifreli)
             Interactable safe = CreateInteractableButton(wall.transform, "Kasa",
                 new Vector2(220, -100), new Vector2(180, 140),
-                new Color(0.25f, 0.25f, 0.28f), 2);
+                new Color(0.25f, 0.25f, 0.25f), 2);
             safe.type = InteractableType.Safe;
             CreateLabel(safe.transform, "KASA", 26, new Color(0.7f, 0.7f, 0.7f));
+
+            // Placeholder 3
+            Interactable p3 = CreateInteractableButton(wall.transform, "Buton " + placeholderCount++,
+                new Vector2(0, -380), new Vector2(100, 100),
+                new Color(0.2f, 0.2f, 0.2f), 2);
+            p3.type = InteractableType.Atmosphere;
+            CreateLabel(p3.transform, "Buton " + (placeholderCount-1), 18, Color.gray);
 
             CreateWallTitle(wall.transform, "Güney Duvar");
         }
 
-        // ====== BATI DUVAR (3) – Kitaplık (Puzzle açar) + Ayna ======
+        // ====== BATI DUVAR (3) – Tablo (Puzzle açar) + Ayna ======
         {
             GameObject wall = wallPanels[3];
 
-            // Kitaplık → Tıklayınca puzzle sahnesini açacak (PuzzleOpener ile)
-            GameObject bookshelfObj = CreatePanel("Kitaplik", wall.transform, new Color(0.28f, 0.15f, 0.08f));
-            bookshelfObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(180, 0);
-            bookshelfObj.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 350);
-            bookshelfObj.AddComponent<Shadow>().effectColor = new Color(0, 0, 0, 0.5f);
-            bookshelfObj.GetComponent<Shadow>().effectDistance = new Vector2(0, -5);
-            Button bookshelfBtn = bookshelfObj.AddComponent<Button>();
-            PuzzleOpener opener = bookshelfObj.AddComponent<PuzzleOpener>(); // Listener'ı bu bağlayacak
-            CreateLabel(bookshelfObj.transform, "KİTAPLIK\n(Tıkla)", 24, new Color(0.8f, 0.65f, 0.45f));
+            // Tablo (Eskiden Kitaplık) → Tıklayınca painting puzzle sahnesini açacak
+            GameObject tablobj = CreatePanel("Tablo", wall.transform, new Color(0.28f, 0.15f, 0.08f));
+            tablobj.GetComponent<RectTransform>().anchoredPosition = new Vector2(180, 0);
+            tablobj.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 350);
+            tablobj.AddComponent<Shadow>().effectColor = new Color(0, 0, 0, 0.5f);
+            tablobj.GetComponent<Shadow>().effectDistance = new Vector2(0, -5);
+            tablobj.AddComponent<Button>();
+            PuzzleOpener opener = tablobj.AddComponent<PuzzleOpener>(); 
+            CreateLabel(tablobj.transform, "TABLO\n(Tıkla)", 24, new Color(0.8f, 0.65f, 0.45f));
 
             Interactable mirror = CreateInteractableButton(wall.transform, "Ayna",
                 new Vector2(-200, 50), new Vector2(150, 220),
@@ -125,6 +151,13 @@ public class CubeEscapeSetup
             mirror.type = InteractableType.Atmosphere;
             mirror.clueMessage = "Aynaya baktın...\nYansımanda bir anlık\nbir gölge gördün.";
             CreateLabel(mirror.transform, "AYNA", 24, new Color(0.7f, 0.8f, 0.9f));
+
+            // Placeholder 4
+            Interactable p4 = CreateInteractableButton(wall.transform, "Buton " + placeholderCount++,
+                new Vector2(0, -380), new Vector2(100, 100),
+                new Color(0.2f, 0.2f, 0.2f), 3);
+            p4.type = InteractableType.Atmosphere;
+            CreateLabel(p4.transform, "Buton " + (placeholderCount-1), 18, Color.gray);
 
             CreateWallTitle(wall.transform, "Batı Duvar");
         }
@@ -323,39 +356,20 @@ public class CubeEscapeSetup
         cutLine.GetComponent<RectTransform>().anchoredPosition = new Vector2(-3, 30);
         cutLine.GetComponent<RectTransform>().sizeDelta = new Vector2(4, 420);
 
-        // ON/OFF Toggle (sol taraf)
-        GameObject toggleArea = new GameObject("ToggleArea", typeof(RectTransform));
-        toggleArea.transform.SetParent(puzzlePanel.transform, false);
-        toggleArea.GetComponent<RectTransform>().anchoredPosition = new Vector2(-380, -100);
-
-        GameObject toggleOnBtn = CreateButton(toggleArea.transform, "ToggleON",
-            new Vector2(0, 40), new Vector2(130, 55),
-            new Color(0.15f, 0.65f, 0.15f), "ON", 26);
-
-        GameObject toggleOffBtn = CreateButton(toggleArea.transform, "ToggleOFF",
-            new Vector2(0, -25), new Vector2(130, 55),
-            new Color(0.65f, 0.15f, 0.15f), "OFF", 26);
-
-        GameObject toggleStatus = CreateTextObj(toggleArea.transform, "ToggleStatus",
-            new Vector2(0, 90), new Vector2(200, 40), "Bıçak: KAPALI", 22, new Color(0.8f, 0.8f, 0.8f));
-
         // PaintingPuzzle script bağla
         PaintingPuzzle puzzleScript = puzzlePanel.AddComponent<PaintingPuzzle>();
         puzzleScript.puzzlePanel = puzzlePanel;
         puzzleScript.paintingLeft = plRT;
         puzzleScript.paintingRight = prRT;
-        puzzleScript.toggleOnButton = toggleOnBtn.GetComponent<Button>();
-        puzzleScript.toggleOffButton = toggleOffBtn.GetComponent<Button>();
-        puzzleScript.toggleStatusText = toggleStatus.GetComponent<TextMeshProUGUI>();
         puzzleScript.backButton = puzzleBackBtn.GetComponent<Button>();
 
-        // Tablo butonunu script'e referans olarak ver (script kendi Start()'ında bağlar)
+        // Tablo butonunu script'e referans olarak ver (script Start'da bağlar)
         puzzleScript.paintingRightButton = paintingClickBtn;
 
-        // Kitaplık objesine puzzle referansını ver
-        PuzzleOpener kitaplikOpener = GameObject.Find("Kitaplik")?.GetComponent<PuzzleOpener>();
-        if (kitaplikOpener != null)
-            kitaplikOpener.targetPuzzle = puzzleScript;
+        // Tablo interactable'ına puzzle referansını ver
+        PuzzleOpener tabloOpener = GameObject.Find("Tablo")?.GetComponent<PuzzleOpener>();
+        if (tabloOpener != null)
+            tabloOpener.targetPuzzle = puzzleScript;
 
         puzzlePanel.SetActive(false);
 
@@ -397,6 +411,9 @@ public class CubeEscapeSetup
 
         // ====== KUZEY DUVAR (METRONOME/TERAZI) ======
         UI_MetronomeSetup.CreateUIMetronomePuzzle();
+
+        // ====== DOĞU DUVAR (MOON PUZZLE) ======
+        UI_MoonSetup.CreateUIMoonPuzzle();
 
         Selection.activeGameObject = root;
         Debug.Log("Cube Escape sahne kurulumu tamamlandı!");
