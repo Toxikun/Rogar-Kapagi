@@ -26,6 +26,14 @@ public class Interactable : MonoBehaviour
     public Image myImage;
     public GameObject safePopup; // Safe tipi için
 
+    private void Start()
+    {
+        // Kendi butonuna listener bağla (serialize sorunu çözümü)
+        Button btn = GetComponent<Button>();
+        if (btn != null)
+            btn.onClick.AddListener(OnClicked);
+    }
+
     public void OnClicked()
     {
         if (isUsed && type != InteractableType.Clue && type != InteractableType.Atmosphere) return;

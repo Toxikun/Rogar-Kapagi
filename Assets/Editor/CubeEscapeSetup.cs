@@ -110,13 +110,14 @@ public class CubeEscapeSetup
         {
             GameObject wall = wallPanels[3];
 
-            // Kitaplık → Tıklayınca puzzle sahnesini açacak (onClick aşağıda bağlanacak)
+            // Kitaplık → Tıklayınca puzzle sahnesini açacak (PuzzleOpener ile)
             GameObject bookshelfObj = CreatePanel("Kitaplik", wall.transform, new Color(0.28f, 0.15f, 0.08f));
             bookshelfObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(180, 0);
             bookshelfObj.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 350);
             bookshelfObj.AddComponent<Shadow>().effectColor = new Color(0, 0, 0, 0.5f);
             bookshelfObj.GetComponent<Shadow>().effectDistance = new Vector2(0, -5);
             Button bookshelfBtn = bookshelfObj.AddComponent<Button>();
+            PuzzleOpener opener = bookshelfObj.AddComponent<PuzzleOpener>(); // Listener'ı bu bağlayacak
             CreateLabel(bookshelfObj.transform, "KİTAPLIK\n(Tıkla)", 24, new Color(0.8f, 0.65f, 0.45f));
 
             Interactable mirror = CreateInteractableButton(wall.transform, "Ayna",
@@ -175,8 +176,9 @@ public class CubeEscapeSetup
             slotRT.anchorMax = new Vector2(0.5f, 0.5f);
 
             Button slotBtn = slot.AddComponent<Button>();
-            int idx = i;
-            slotBtn.onClick.AddListener(() => invScript.OnSlotClicked(idx));
+            InventorySlot invSlot = slot.AddComponent<InventorySlot>();
+            invSlot.slotIndex = i;
+            invSlot.inventory = invScript;
 
             invScript.slots.Add(slot.GetComponent<Image>());
 
@@ -348,13 +350,13 @@ public class CubeEscapeSetup
         puzzleScript.toggleStatusText = toggleStatus.GetComponent<TextMeshProUGUI>();
         puzzleScript.backButton = puzzleBackBtn.GetComponent<Button>();
 
-        // Tabloya tıklama → puzzle'ın OnPaintingClicked fonksiyonunu çağır
-        paintingClickBtn.onClick.AddListener(() => puzzleScript.OnPaintingClicked());
+        // Tablo butonunu script'e referans olarak ver (script kendi Start()'ında bağlar)
+        puzzleScript.paintingRightButton = paintingClickBtn;
 
-        // Kitaplık butonuna tıklayınca puzzle'ı aç
-        Button kitaplikButton = GameObject.Find("Kitaplik")?.GetComponent<Button>();
-        if (kitaplikButton != null)
-            kitaplikButton.onClick.AddListener(() => puzzleScript.OpenPuzzle());
+        // Kitaplık objesine puzzle referansını ver
+        PuzzleOpener kitaplikOpener = GameObject.Find("Kitaplik")?.GetComponent<PuzzleOpener>();
+        if (kitaplikOpener != null)
+            kitaplikOpener.targetPuzzle = puzzleScript;
 
         puzzlePanel.SetActive(false);
 
