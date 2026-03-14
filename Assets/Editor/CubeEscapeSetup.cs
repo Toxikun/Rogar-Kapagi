@@ -44,8 +44,7 @@ public class CubeEscapeSetup
             Interactable cabinet = CreateInteractableButton(wall.transform, "Dolap",
                 new Vector2(-200, -50), new Vector2(220, 300),
                 new Color(0.35f, 0.22f, 0.12f), 0);
-            cabinet.type = InteractableType.Pickup;
-            cabinet.itemName = "Not";
+            cabinet.type = InteractableType.Puzzle;
             cabinet.clueMessage = "";
 
             // Üstüne "DOLAP" yazısı
@@ -395,6 +394,9 @@ public class CubeEscapeSetup
             if (t != null) es.AddComponent(t);
             else es.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
         }
+
+        // ====== KUZEY DUVAR (METRONOME/TERAZI) ======
+        UI_MetronomeSetup.CreateUIMetronomePuzzle();
 
         Selection.activeGameObject = root;
         Debug.Log("Cube Escape sahne kurulumu tamamlandı!");

@@ -18,6 +18,14 @@ namespace Puzzles.MetronomeUI
         public UIScalePan CurrentPan;
 
         private RectTransform _rect;
+        private RectTransform Rect
+        {
+            get
+            {
+                if (_rect == null) _rect = GetComponent<RectTransform>();
+                return _rect;
+            }
+        }
         private Vector2 _originalAnchoredPos;
         private Transform _originalParent;
 
@@ -31,7 +39,7 @@ namespace Puzzles.MetronomeUI
         /// </summary>
         public void SavePosition()
         {
-            _originalAnchoredPos = _rect.anchoredPosition;
+            _originalAnchoredPos = Rect.anchoredPosition;
             _originalParent = transform.parent;
         }
 
@@ -41,7 +49,7 @@ namespace Puzzles.MetronomeUI
         public void ReturnToSavedPosition()
         {
             transform.SetParent(_originalParent, false);
-            _rect.anchoredPosition = _originalAnchoredPos;
+            Rect.anchoredPosition = _originalAnchoredPos;
         }
 
         public void OnPointerClick(PointerEventData eventData)

@@ -31,6 +31,8 @@ namespace Puzzles.MetronomeUI
         [Header("Buttons")]
         public Button closeButton; // close entire puzzle panel
         public Button backButton;  // go from inner view back to outer view
+        public Button innerCloseButton;
+        public Button boxButton;
 
         [Header("State")]
         public bool isSolved = false;
@@ -67,6 +69,10 @@ namespace Puzzles.MetronomeUI
                 closeButton.onClick.AddListener(ClosePuzzle);
             if (backButton != null)
                 backButton.onClick.AddListener(GoBackToOuterView);
+            if (innerCloseButton != null)
+                innerCloseButton.onClick.AddListener(ClosePuzzle);
+            if (boxButton != null)
+                boxButton.onClick.AddListener(EnterInnerView);
         }
 
         private void Update()

@@ -23,6 +23,14 @@ namespace Puzzles.MetronomeUI
 
         private List<UIWeightInteractable> _weights = new List<UIWeightInteractable>();
         private RectTransform _rect;
+        private RectTransform Rect
+        {
+            get
+            {
+                if (_rect == null) _rect = GetComponent<RectTransform>();
+                return _rect;
+            }
+        }
 
         public float TotalWeight
         {
@@ -89,7 +97,7 @@ namespace Puzzles.MetronomeUI
         {
             if (_weights.Count == 0) return;
 
-            float panHeight = _rect.rect.height;
+            float panHeight = Rect.rect.height;
 
             // Calculate total width of all weights + spacing
             float totalWidth = 0f;
