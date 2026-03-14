@@ -24,6 +24,7 @@ public class MoonPuzzle : MonoBehaviour
 
     [Header("Gradient Overlay")]
     public Image gradientOverlay;
+    public GameObject menuGrad;
 
     [Header("Olta Toggle (on East Wall)")]
     public GameObject oltaVisualObject;
@@ -38,6 +39,7 @@ public class MoonPuzzle : MonoBehaviour
     private Vector2 moonStartPos;
     private Canvas parentCanvas;
     private RectTransform panelRect;
+  
 
     private void Start()
     {
@@ -167,6 +169,7 @@ public class MoonPuzzle : MonoBehaviour
         {
             // Moon is outside frame enough → complete the puzzle
             StartCoroutine(MoonFadeOutAndCollect());
+            menuGrad.SetActive(false);
         }
         else
         {
