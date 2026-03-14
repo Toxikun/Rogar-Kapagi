@@ -69,8 +69,8 @@ public class CubeEscapeSetup
             Interactable window = CreateInteractableButton(wall.transform, "Pencere",
                 new Vector2(0, 100), new Vector2(250, 300),
                 new Color(0.15f, 0.20f, 0.35f), 1);
-            window.type = InteractableType.Atmosphere;
-            window.clueMessage = "Dışarıda yoğun bir sis var.\nHiçbir şey göremiyorsun...";
+            window.type = InteractableType.Puzzle;
+            window.clueMessage = "";
             CreateLabel(window.transform, "PENCERE", 24, new Color(0.5f, 0.6f, 0.8f));
 
             Interactable clock = CreateInteractableButton(wall.transform, "Saat",
@@ -397,6 +397,9 @@ public class CubeEscapeSetup
 
         // ====== KUZEY DUVAR (METRONOME/TERAZI) ======
         UI_MetronomeSetup.CreateUIMetronomePuzzle();
+
+        // ====== DOĞU DUVAR (MOON PUZZLE) ======
+        UI_MoonSetup.CreateUIMoonPuzzle();
 
         Selection.activeGameObject = root;
         Debug.Log("Cube Escape sahne kurulumu tamamlandı!");
