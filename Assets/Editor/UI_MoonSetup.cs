@@ -82,7 +82,7 @@ public class UI_MoonSetup
         txt.alignment = TextAlignmentOptions.Center;
         txt.color = Color.white;
 
-        // 7. Link to East Wall (Olta Buttons & Window)
+        // 7. Link to East Wall (Olta Toggle & Window)
         GameObject wallEast = GameObject.Find("Wall_East");
         if (wallEast != null)
         {
@@ -100,48 +100,33 @@ public class UI_MoonSetup
             }
 
             // Create Olta Toggle UI on wall
-            GameObject oltaToggle = new GameObject("OltaToggleArea", typeof(RectTransform));
-            oltaToggle.transform.SetParent(wallEast.transform, false);
-            var tr = oltaToggle.GetComponent<RectTransform>();
+            // Cleanup old area
+            Transform oldArea = wallEast.transform.Find("OltaToggleArea");
+            if (oldArea != null) Object.DestroyImmediate(oldArea.gameObject);
+
+            GameObject oltaArea = new GameObject("OltaToggleArea", typeof(RectTransform));
+            oltaArea.transform.SetParent(wallEast.transform, false);
+            var tr = oltaArea.GetComponent<RectTransform>();
             tr.anchoredPosition = new Vector2(380, -200);
-            tr.sizeDelta = new Vector2(200, 150);
+            tr.sizeDelta = new Vector2(150, 150);
 
-            // ON Button
-            GameObject onBtnGo = CreateUIObject("OltaON", oltaToggle.transform);
-            var onRect = onBtnGo.GetComponent<RectTransform>();
-            onRect.anchoredPosition = new Vector2(0, 40);
-            onRect.sizeDelta = new Vector2(140, 50);
-            var onImg = onBtnGo.AddComponent<Image>();
-            onImg.color = new Color(0.2f, 0.6f, 0.2f);
-            var onBtn = onBtnGo.AddComponent<Button>();
-            moonPuzzle.toggleOnButton = onBtn;
-            CreateLabel(onBtnGo.transform, "OLTA AL", 20);
+            // Single Toggle Button (The visual object itself is the button)
+            GameObject oltaBtnGo = CreateUIObject("OltaObject", oltaArea.transform);
+            var btnRect = oltaBtnGo.GetComponent<RectTransform>();
+            btnRect.sizeDelta = new Vector2(120, 120);
+            var btnImg = oltaBtnGo.AddComponent<Image>();
+            btnImg.color = new Color(0.6f, 0.45f, 0.2f); // Brownish
+            var toggleBtn = oltaBtnGo.AddComponent<Button>();
+            
+            moonPuzzle.oltaToggleButton = toggleBtn;
+            moonPuzzle.oltaVisualObject = oltaBtnGo;
 
-            // OFF Button
-            GameObject offBtnGo = CreateUIObject("OltaOFF", oltaToggle.transform);
-            var offRect = offBtnGo.GetComponent<RectTransform>();
-            offRect.anchoredPosition = new Vector2(0, -20);
-            offRect.sizeDelta = new Vector2(140, 50);
-            var offImg = offBtnGo.AddComponent<Image>();
-            offImg.color = new Color(0.6f, 0.2f, 0.2f);
-            var offBtn = offBtnGo.AddComponent<Button>();
-            moonPuzzle.toggleOffButton = offBtn;
-            CreateLabel(offBtnGo.transform, "BIRAK", 20);
-
-            // Status Text
-            GameObject statusGo = CreateUIObject("Status", oltaToggle.transform);
-            var statRect = statusGo.GetComponent<RectTransform>();
-            statRect.anchoredPosition = new Vector2(0, 90);
-            var statTxt = statusGo.AddComponent<TextMeshProUGUI>();
-            statTxt.text = "Olta: KAPALI";
-            statTxt.fontSize = 22;
-            statTxt.alignment = TextAlignmentOptions.Center;
-            moonPuzzle.toggleStatusText = statTxt;
+            CreateLabel(oltaBtnGo.transform, "OLTA", 22);
         }
 
         panel.SetActive(false);
         EditorUtility.SetDirty(panel);
-        Debug.Log("Moon Puzzle UI created.");
+        Debug.Log("Moon Puzzle UI created with single Olta toggle.");
     }
 
     private static GameObject CreateUIObject(string name, Transform parent)

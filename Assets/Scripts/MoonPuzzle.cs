@@ -26,29 +26,24 @@ public class MoonPuzzle : MonoBehaviour
     public Image gradientOverlay;
 
     [Header("Olta Toggle (on East Wall)")]
-    public Button toggleOnButton;
-    public Button toggleOffButton;
-    public TextMeshProUGUI toggleStatusText;
+    public GameObject oltaVisualObject;
+    public Button oltaToggleButton;
 
     [Header("Puzzle Buttons")]
     public Button backButton;
 
     [Header("State")]
-    public bool hasOlta = false;
     public bool moonRemoved = false;
 
-    private bool isDragging = false;
     private Vector2 moonStartPos;
     private Canvas parentCanvas;
     private RectTransform panelRect;
 
     private void Start()
     {
-        // Olta ON/OFF
-        if (toggleOnButton != null)
-            toggleOnButton.onClick.AddListener(TurnOltaOn);
-        if (toggleOffButton != null)
-            toggleOffButton.onClick.AddListener(TurnOltaOff);
+        // Olta Toggle
+        if (oltaToggleButton != null)
+            oltaToggleButton.onClick.AddListener(ToggleOlta);
 
         // Back button
         if (backButton != null)
@@ -67,7 +62,7 @@ public class MoonPuzzle : MonoBehaviour
         if (moonRect != null)
             moonStartPos = moonRect.anchoredPosition;
 
-        UpdateToggleUI();
+        UpdateOltaVisual();
     }
 
     // ===== PUZZLE AÇ/KAPAT =====
@@ -93,29 +88,35 @@ public class MoonPuzzle : MonoBehaviour
             puzzlePanel.SetActive(false);
     }
 
-    // ===== OLTA ON/OFF =====
-    private void TurnOltaOn()
+    // ===== OLTA TOGGLE =====
+    private void ToggleOlta()
     {
-        hasOlta = true;
         GameManager gm = GameManager.Instance;
-        if (gm != null && gm.inventory != null)
+        if (gm == null || gm.inventory == null) return;
+
+        if (!gm.inventory.HasItem("Olta"))
+        {
+            // Oltayı al
             gm.inventory.AddItem("Olta");
-        UpdateToggleUI();
-    }
-
-    private void TurnOltaOff()
-    {
-        hasOlta = false;
-        GameManager gm = GameManager.Instance;
-        if (gm != null && gm.inventory != null)
+        }
+        else
+        {
+            // Oltayı bırak
             gm.inventory.RemoveItem("Olta");
-        UpdateToggleUI();
+        }
+        UpdateOltaVisual();
     }
 
-    private void UpdateToggleUI()
+    private void UpdateOltaVisual()
     {
-        if (toggleStatusText != null)
-            toggleStatusText.text = hasOlta ? "Olta: AÇIK" : "Olta: KAPALI";
+        GameManager gm = GameManager.Instance;
+        if (gm == null || gm.inventory == null) return;
+
+        bool hasOlta = gm.inventory.HasItem("Olta");
+        
+        // Alındığında görsel kaybolur, bırakıldığında geri gelir
+        if (oltaVisualObject != null)
+            oltaVisualObject.SetActive(!hasOlta);
     }
 
     // ===== MOON DRAG (called by MoonDragHandler) =====

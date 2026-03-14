@@ -16,7 +16,6 @@ public class Inventory : MonoBehaviour
     {
         {"Anahtar", new Color(1f, 0.85f, 0.2f)},
         {"Not", new Color(0.9f, 0.9f, 0.8f)},
-        {"Maket Bıçağı", new Color(0.7f, 0.7f, 0.75f)},
         {"Olta", new Color(0.6f, 0.45f, 0.2f)},
         {"Ay", new Color(1f, 0.95f, 0.7f)},
     };
