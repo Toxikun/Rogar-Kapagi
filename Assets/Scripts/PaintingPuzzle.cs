@@ -24,6 +24,9 @@ public class PaintingPuzzle : MonoBehaviour
     public bool hasKnife = false;
     public bool isCut = false;
 
+    // Sağ parça butonu (kesme işlemi için tıklandığında)
+    public Button paintingRightButton;
+
     private void Start()
     {
         if (toggleOnButton != null)
@@ -32,6 +35,8 @@ public class PaintingPuzzle : MonoBehaviour
             toggleOffButton.onClick.AddListener(TurnKnifeOff);
         if (backButton != null)
             backButton.onClick.AddListener(ClosePuzzle);
+        if (paintingRightButton != null)
+            paintingRightButton.onClick.AddListener(OnPaintingClicked);
 
         if (puzzlePanel != null)
             puzzlePanel.SetActive(false);
