@@ -32,7 +32,6 @@ using Puzzles.MetronomeUI;
 /// </summary>
 public class UI_MetronomeSetup : EditorWindow
 {
-    [MenuItem("Tools/Setup UI Metronome Puzzle (Kuzey Duvar)")]
     public static void CreateUIMetronomePuzzle()
     {
         // 0. Cleanup: remove old panel if exists
@@ -244,45 +243,42 @@ public class UI_MetronomeSetup : EditorWindow
             new Vector2(1f, 1f), new Vector2(1f, 1f),
             new Vector2(-80, -50), new Vector2(120, 50),
             "Kapat", 22, new Color(0.8f, 0.2f, 0.2f), Color.white);
-        // Wire inner close button in Start() via code, or just add listener here
-        innerCloseBtn.onClick.AddListener(() => { panel.SetActive(false); });
+        // Wire inner close button in Start() via code
+        manager.innerCloseButton = innerCloseBtn;
 
         // ==========================================
         // 8. WIRE UP BOX BUTTON → EnterInnerView
         // ==========================================
-        // We need to connect via a small helper since manager isn't alive yet in editor.
-        // Best approach: add a small component that calls manager.EnterInnerView on click
+        // Wire up via runtime script to avoid serialization loss
         var boxOpener = box.AddComponent<Button>();
-        // Remove duplicate - we already added Button above, reuse it
         DestroyImmediate(boxOpener); // remove the duplicate
-        boxBtn.onClick.AddListener(() =>
-        {
-            var mgr = panel.GetComponent<MetronomeUIPuzzleManager>();
-            if (mgr != null) mgr.EnterInnerView();
-        });
+        manager.boxButton = boxBtn;
 
         // ==========================================
         // 9. HIDE PANEL & LINK TO DOLAP
         // ==========================================
         panel.SetActive(false);
 
-        GameObject dolap = GameObject.Find("Dolap");
-        if (dolap == null)
+        Interactable dolapInteractable = null;
+        var allInteractables = Resources.FindObjectsOfTypeAll<Interactable>();
+        foreach (var inter in allInteractables)
         {
-            // Try full path
-            dolap = GameObject.Find("CubeEscapeRoot/GameCanvas/Wall_North/Dolap");
+            if (inter == null || inter.gameObject == null) continue; // Skip destroyed Unity objects
+
+            // Yalnızca sahnede olanları al (Asset olanları atla)
+            if (inter.gameObject.name == "Dolap" && inter.gameObject.scene.isLoaded)
+            {
+                dolapInteractable = inter;
+                break;
+            }
         }
 
-        if (dolap != null)
+        if (dolapInteractable != null)
         {
-            var interactable = dolap.GetComponent<Interactable>();
-            if (interactable != null)
-            {
-                interactable.type = InteractableType.Puzzle;
-                interactable.safePopup = panel;
-                EditorUtility.SetDirty(interactable);
-                Debug.Log("Linked MetronomePuzzlePanel → Dolap (Puzzle type).");
-            }
+            dolapInteractable.type = InteractableType.Puzzle;
+            dolapInteractable.safePopup = panel;
+            EditorUtility.SetDirty(dolapInteractable);
+            Debug.Log("Linked MetronomePuzzlePanel → Dolap (Puzzle type).");
         }
         else
         {
@@ -290,6 +286,8 @@ public class UI_MetronomeSetup : EditorWindow
         }
 
         // Mark scene dirty
+        panel.SetActive(false);
+        EditorUtility.SetDirty(panel);
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
             UnityEngine.SceneManagement.SceneManager.GetActiveScene()
         );
