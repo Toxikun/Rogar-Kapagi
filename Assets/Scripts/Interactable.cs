@@ -7,7 +7,8 @@ public enum InteractableType
     Pickup,      // Tıklayınca envantere eşya ekler
     LockedDoor,  // Doğru eşya ile açılır
     Safe,        // Şifre girişi
-    Atmosphere   // Sadece atmosfer efekti
+    Atmosphere,  // Sadece atmosfer efekti
+    Puzzle       // Bulmaca Ekranı açar
 }
 
 public class Interactable : MonoBehaviour
@@ -82,6 +83,13 @@ public class Interactable : MonoBehaviour
 
             case InteractableType.Atmosphere:
                 gm.dialogBox.Show(clueMessage, 3f);
+                break;
+
+            case InteractableType.Puzzle:
+                // We'll use safePopup as the generic "Puzzle Panel" to open,
+                // or you can add a new GameObject field. Re-using safePopup for efficiency:
+                if (safePopup != null)
+                    safePopup.SetActive(true);
                 break;
         }
     }
