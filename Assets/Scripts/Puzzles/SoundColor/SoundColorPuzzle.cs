@@ -49,7 +49,28 @@ namespace Puzzles.SoundColor
             _audioSource.loop = true;
 
             if (closeButton != null)
+            {
+                closeButton.onClick.RemoveAllListeners();
                 closeButton.onClick.AddListener(ClosePuzzle);
+            }
+
+            // Bind square buttons at runtime so they work correctly in Play Mode
+            if (squares != null)
+            {
+                for (int i = 0; i < squares.Length; i++)
+                {
+                    if (squares[i] != null)
+                    {
+                        Button btn = squares[i].GetComponent<Button>();
+                        if (btn != null)
+                        {
+                            int index = i; // local copy for closure
+                            btn.onClick.RemoveAllListeners(); // Clean up duplicate Editor listeners if any
+                            btn.onClick.AddListener(() => OnSquareClicked(index));
+                        }
+                    }
+                }
+            }
         }
 
         private void OnEnable()
@@ -68,7 +89,13 @@ namespace Puzzles.SoundColor
         {
             if (isSolved)
             {
-                // Don't reset if already solved — keep horn playing on re-open
+                // Already solved - ensure win UI is visible and don't reset colors
+                if (winText != null)
+                {
+                    winText.text = "Senkronize ettin!";
+                    winText.gameObject.SetActive(true);
+                }
+                return; 
             }
 
             for (int i = 0; i < 4; i++)
@@ -80,8 +107,6 @@ namespace Puzzles.SoundColor
 
             if (winText != null)
                 winText.gameObject.SetActive(false);
-
-            isSolved = false;
         }
 
         private void PlayBackgroundAudio()

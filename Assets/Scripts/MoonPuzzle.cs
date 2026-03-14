@@ -140,20 +140,15 @@ public class MoonPuzzle : MonoBehaviour
     {
         if (moonRect == null || parentCanvas == null) return;
 
-        // Move moon with pointer
-        Vector2 localPoint;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            panelRect, eventData.position, parentCanvas.worldCamera, out localPoint);
-        moonRect.anchoredPosition = localPoint;
+        // Ekran üzerindeki fare hareket miktarını (delta), Canvas ölçeğine böler.
+        // Böylece çözünürlükten bağımsız, mouse ne kadar gittiyse obje o kadar gider.
+        moonRect.anchoredPosition += eventData.delta / parentCanvas.scaleFactor;
 
-        // Check if moon is outside window frame
+        // --- Görsel Efekt Kontrolleri (Aynı kalabilir) ---
         if (!IsMoonInsideFrame())
         {
-            // Calculate how far outside (for gradual fade)
             float dist = GetDistanceOutsideFrame();
-            float fadeStart = 20f;
-            float fadeEnd = 150f;
-            float t = Mathf.Clamp01((dist - fadeStart) / (fadeEnd - fadeStart));
+            float t = Mathf.Clamp01((dist - 20f) / 130f);
             SetMoonAlpha(1f - t);
             SetGradientAlpha(1f - t * 0.8f);
         }

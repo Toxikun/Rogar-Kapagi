@@ -8,9 +8,9 @@ public class PaintingPuzzle : MonoBehaviour
     [Header("Puzzle Panel")]
     public GameObject puzzlePanel;
 
-    [Header("Painting Pieces")]
-    public RectTransform paintingLeft;   // Sol parça (yerinde kalır)
-    public RectTransform paintingRight;  // Sağ parça (düşecek)
+    [Header("Painting Layers")]
+    public RectTransform bottomLayer; // Sabit kalan alt katman (resim alt katman)
+    public RectTransform topPiece;    // Kesilince düşen üst parça (resim kesilen parça)
 
     [Header("Back Button")]
     public Button backButton;
@@ -18,15 +18,15 @@ public class PaintingPuzzle : MonoBehaviour
     [Header("State")]
     public bool isCut = false;
 
-    // Sağ parça butonu (kesme işlemi için tıklandığında)
-    public Button paintingRightButton;
+    // Üst parça butonu (kesme işlemi için tıklandığında)
+    public Button paintingButton;
 
     private void Start()
     {
         if (backButton != null)
             backButton.onClick.AddListener(ClosePuzzle);
-        if (paintingRightButton != null)
-            paintingRightButton.onClick.AddListener(OnPaintingClicked);
+        if (paintingButton != null)
+            paintingButton.onClick.AddListener(OnPaintingClicked);
 
         if (puzzlePanel != null)
             puzzlePanel.SetActive(false);
@@ -36,7 +36,10 @@ public class PaintingPuzzle : MonoBehaviour
     public void OpenPuzzle()
     {
         if (puzzlePanel != null)
+        {
             puzzlePanel.SetActive(true);
+            // Reset if not cut? Usually we keep it cut once done.
+        }
     }
 
     public void ClosePuzzle()
@@ -70,7 +73,7 @@ public class PaintingPuzzle : MonoBehaviour
         isCut = true;
         Debug.Log("Tablo kesildi!");
         gm.dialogBox.Show("Ay bıçağı ile tabloyu kestin! Arkasında bir şey var...", 3f);
-        StartCoroutine(FallAnimation(paintingRight));
+        StartCoroutine(FallAnimation(topPiece));
     }
 
     private IEnumerator FallAnimation(RectTransform piece)
@@ -78,22 +81,22 @@ public class PaintingPuzzle : MonoBehaviour
         if (piece == null) yield break;
 
         Vector2 startPos = piece.anchoredPosition;
-        // Sağ parça: hafifçe sağa kayarak aşağı düşer
-        Vector2 endPos = startPos + new Vector2(150f, -900f);
+        // Parça: hafifçe sola/aşağı kayarak düşer (Kullanıcı sol taraf dediği için sola düşmesi daha doğal olabilir)
+        Vector2 endPos = startPos + new Vector2(-150f, -900f);
         float duration = 1.5f;
         float elapsed = 0f;
 
-        // Hafif saat yönünde dönme (sağ parça kopunca sağa doğru döner)
+        // Hafif saat yönünün tersine dönme
         float startRotation = 0f;
-        float endRotation = 35f;
+        float endRotation = -35f;
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
 
-            // Easing: hızlanarak düşme (yerçekimi hissi)
-            float easedT = t * t * t; // Cubic easing – daha dramatik
+            // Easing: hızlanarak düşme
+            float easedT = t * t * t;
 
             piece.anchoredPosition = Vector2.Lerp(startPos, endPos, easedT);
             piece.localRotation = Quaternion.Euler(0, 0, Mathf.Lerp(startRotation, endRotation, easedT));
@@ -108,7 +111,6 @@ public class PaintingPuzzle : MonoBehaviour
                     img.color = new Color(img.color.r, img.color.g, img.color.b, alpha);
                 }
 
-                // İçindeki texti de soldur
                 TextMeshProUGUI txt = piece.GetComponentInChildren<TextMeshProUGUI>();
                 if (txt != null)
                 {

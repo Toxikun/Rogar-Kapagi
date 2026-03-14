@@ -119,7 +119,7 @@ public class CubeEscapeSetup
                 new Vector2(220, -100), new Vector2(180, 140),
                 new Color(0.25f, 0.25f, 0.25f), 2);
             safe.type = InteractableType.Safe;
-            CreateLabel(safe.transform, "KASA", 26, new Color(0.7f, 0.7f, 0.7f));
+            CreateLabel(safe.transform, "BANKA", 26, new Color(0.7f, 0.7f, 0.7f));
 
             // Placeholder 3
             Interactable p3 = CreateInteractableButton(wall.transform, "Buton " + placeholderCount++,
@@ -135,14 +135,13 @@ public class CubeEscapeSetup
         {
             GameObject wall = wallPanels[3];
 
-            // Tablo (Eskiden Kitaplık) → Tıklayınca painting puzzle sahnesini açacak
+            // Tablo (Eskiden Kitaplık)
             GameObject tablobj = CreatePanel("Tablo", wall.transform, new Color(0.28f, 0.15f, 0.08f));
             tablobj.GetComponent<RectTransform>().anchoredPosition = new Vector2(180, 0);
             tablobj.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 350);
             tablobj.AddComponent<Shadow>().effectColor = new Color(0, 0, 0, 0.5f);
             tablobj.GetComponent<Shadow>().effectDistance = new Vector2(0, -5);
             tablobj.AddComponent<Button>();
-            PuzzleOpener opener = tablobj.AddComponent<PuzzleOpener>(); 
             CreateLabel(tablobj.transform, "TABLO\n(Tıkla)", 24, new Color(0.8f, 0.65f, 0.45f));
 
             Interactable mirror = CreateInteractableButton(wall.transform, "Ayna",
@@ -252,73 +251,12 @@ public class CubeEscapeSetup
         dialogScript.closeButton = diagCloseBtn.GetComponent<Button>();
         dialogPanel.SetActive(false);
 
-        // ====== KASA POPUP ======
-        GameObject safePanel = CreatePanel("SafePopup", canvasObj.transform, new Color(0, 0, 0, 0.9f));
-        Stretch(safePanel);
+        // ====== GÜNEY DUVAR (SOUND COLOR PUZZLE) ======
+        // UI_SoundColorPuzzleSetup.CreateUISoundColorPuzzle() already handles finding the 'Kasa'
+        // interactable and attaching the created SoundColorPuzzlePanel to it.
+        // It's called at the end of the script, so we just remove the old SafePopup here.
 
-        GameObject safeWindow = CreatePanel("SafeWindow", safePanel.transform, new Color(0.15f, 0.15f, 0.18f));
-        safeWindow.GetComponent<RectTransform>().sizeDelta = new Vector2(500, 400);
-
-        CreateTextObj(safeWindow.transform, "SafeTitle", new Vector2(0, 130), new Vector2(400, 60),
-            "Kasa Şifresi", 42, Color.white);
-
-        // Input field
-        GameObject inputObj = new GameObject("CodeInput", typeof(RectTransform), typeof(CanvasRenderer),
-            typeof(Image), typeof(TMP_InputField));
-        inputObj.transform.SetParent(safeWindow.transform, false);
-        inputObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 30);
-        inputObj.GetComponent<RectTransform>().sizeDelta = new Vector2(300, 70);
-        inputObj.GetComponent<Image>().color = new Color(0.25f, 0.25f, 0.25f);
-
-        // Input text area
-        GameObject inputTextArea = new GameObject("Text Area", typeof(RectTransform));
-        inputTextArea.transform.SetParent(inputObj.transform, false);
-        RectTransform taRt = inputTextArea.GetComponent<RectTransform>();
-        taRt.anchorMin = Vector2.zero; taRt.anchorMax = Vector2.one;
-        taRt.sizeDelta = new Vector2(-16, -8);
-
-        GameObject inputText = CreateTextObj(inputTextArea.transform, "Text", Vector2.zero, Vector2.zero,
-            "", 36, Color.white);
-        RectTransform itRT = inputText.GetComponent<RectTransform>();
-        itRT.anchorMin = Vector2.zero; itRT.anchorMax = Vector2.one;
-        itRT.sizeDelta = Vector2.zero;
-
-        GameObject placeholder = CreateTextObj(inputTextArea.transform, "Placeholder", Vector2.zero, Vector2.zero,
-            "_ _ _", 36, new Color(0.5f,0.5f,0.5f));
-        RectTransform phRT = placeholder.GetComponent<RectTransform>();
-        phRT.anchorMin = Vector2.zero; phRT.anchorMax = Vector2.one;
-        phRT.sizeDelta = Vector2.zero;
-
-        TMP_InputField inputField = inputObj.GetComponent<TMP_InputField>();
-        inputField.textComponent = inputText.GetComponent<TextMeshProUGUI>();
-        inputField.textViewport = taRt;
-        inputField.placeholder = placeholder.GetComponent<TextMeshProUGUI>();
-        inputField.characterLimit = 3;
-        inputField.contentType = TMP_InputField.ContentType.IntegerNumber;
-
-        GameObject safeFeedback = CreateTextObj(safeWindow.transform, "Feedback",
-            new Vector2(0, -30), new Vector2(400, 40), "", 28, new Color(1f, 0.3f, 0.3f));
-
-        GameObject safeSubmitBtn = CreateButton(safeWindow.transform, "SubmitBtn",
-            new Vector2(-100, -110), new Vector2(170, 60),
-            new Color(0.2f, 0.7f, 0.2f), "Gönder", 28);
-
-        GameObject safeCancelBtn = CreateButton(safeWindow.transform, "CancelBtn",
-            new Vector2(100, -110), new Vector2(170, 60),
-            new Color(0.7f, 0.2f, 0.2f), "İptal", 28);
-
-        SafePanel safeScript = safePanel.AddComponent<SafePanel>();
-        safeScript.codeInput = inputField;
-        safeScript.submitButton = safeSubmitBtn.GetComponent<Button>();
-        safeScript.cancelButton = safeCancelBtn.GetComponent<Button>();
-        safeScript.feedbackText = safeFeedback.GetComponent<TextMeshProUGUI>();
-        safePanel.SetActive(false);
-
-        // Kasa interactable'ına referansı bağla
-        Interactable safeInteractable = GameObject.Find("Kasa")?.GetComponent<Interactable>();
-        if (safeInteractable != null) safeInteractable.safePopup = safePanel;
-
-        // ====== TABLO PUZZLE PANELİ ======
+        // ====== TABLO PUZZLE PANELİ (LAYERED) ======
         GameObject puzzlePanel = CreatePanel("PuzzlePanel", canvasObj.transform, new Color(0.08f, 0.08f, 0.10f));
         Stretch(puzzlePanel);
 
@@ -327,49 +265,33 @@ public class CubeEscapeSetup
             new Vector2(-400, 400), new Vector2(160, 70),
             new Color(0.5f, 0.2f, 0.2f), "← GERİ", 28);
 
-        // Tablo – 2 Parça (Sol + Sağ) yan yana
-        // Sol parça (yerinde kalır)
-        GameObject paintingLeft = CreatePanel("PaintingLeft", puzzlePanel.transform, new Color(0.50f, 0.35f, 0.18f));
-        RectTransform plRT = paintingLeft.GetComponent<RectTransform>();
-        plRT.anchoredPosition = new Vector2(-120, 30);
-        plRT.sizeDelta = new Vector2(230, 400);
-        CreateTextObj(paintingLeft.transform, "ArtLeft", Vector2.zero, Vector2.zero,
-            "🖼️\nSol\nParça", 28, new Color(0.9f, 0.8f, 0.6f));
-        RectTransform artLeftTR = paintingLeft.transform.GetChild(0).GetComponent<RectTransform>();
-        artLeftTR.anchorMin = Vector2.zero; artLeftTR.anchorMax = Vector2.one; artLeftTR.sizeDelta = Vector2.zero;
-        paintingLeft.transform.GetChild(0).GetComponent<TextMeshProUGUI>().raycastTarget = false;
+        // Load Sprites
+        Sprite bottomSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/kege sprites/resim alt katman.png");
+        Sprite pieceSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/kege sprites/resim kesilen parça.png");
 
-        // Sağ parça (bu düşecek – tıklanabilir)
-        GameObject paintingRight = CreatePanel("PaintingRight", puzzlePanel.transform, new Color(0.45f, 0.30f, 0.15f));
-        RectTransform prRT = paintingRight.GetComponent<RectTransform>();
-        prRT.anchoredPosition = new Vector2(112, 30);
-        prRT.sizeDelta = new Vector2(230, 400);
-        Button paintingClickBtn = paintingRight.AddComponent<Button>();
-        CreateTextObj(paintingRight.transform, "ArtRight", Vector2.zero, Vector2.zero,
-            "🖼️\nSağ\nParça\n\n✂ Kes", 26, new Color(0.9f, 0.8f, 0.6f));
-        RectTransform artRightTR = paintingRight.transform.GetChild(0).GetComponent<RectTransform>();
-        artRightTR.anchorMin = Vector2.zero; artRightTR.anchorMax = Vector2.one; artRightTR.sizeDelta = Vector2.zero;
-        paintingRight.transform.GetChild(0).GetComponent<TextMeshProUGUI>().raycastTarget = false;
+        // Alt Katman (Bottom Layer) – Arka planı tamamen kaplar
+        GameObject bottomLayerObj = CreatePanel("BottomLayer", puzzlePanel.transform, Color.white);
+        RectTransform blRT = bottomLayerObj.GetComponent<RectTransform>();
+        blRT.anchoredPosition = new Vector2(0, 30);
+        blRT.sizeDelta = new Vector2(460, 400); // Toplam boyuta yakın
+        if (bottomSprite != null) bottomLayerObj.GetComponent<Image>().sprite = bottomSprite;
 
-        // Kesim çizgisi (dikey – iki parça arasında)
-        GameObject cutLine = CreatePanel("CutLine", puzzlePanel.transform, new Color(0.8f, 0.2f, 0.2f, 0.6f));
-        cutLine.GetComponent<RectTransform>().anchoredPosition = new Vector2(-3, 30);
-        cutLine.GetComponent<RectTransform>().sizeDelta = new Vector2(4, 420);
+        // Kesilen Parça (Top Piece) – Sol taraf, alt katmanın üstünde
+        GameObject topPieceObj = CreatePanel("TopPiece", puzzlePanel.transform, Color.white);
+        RectTransform tpRT = topPieceObj.GetComponent<RectTransform>();
+        tpRT.anchoredPosition = new Vector2(-115, 30); // Sol tarafa hizalı
+        tpRT.sizeDelta = new Vector2(230, 400); // Genişliğin yarısı
+        if (pieceSprite != null) topPieceObj.GetComponent<Image>().sprite = pieceSprite;
+        
+        Button paintingClickBtn = topPieceObj.AddComponent<Button>();
 
         // PaintingPuzzle script bağla
         PaintingPuzzle puzzleScript = puzzlePanel.AddComponent<PaintingPuzzle>();
         puzzleScript.puzzlePanel = puzzlePanel;
-        puzzleScript.paintingLeft = plRT;
-        puzzleScript.paintingRight = prRT;
+        puzzleScript.bottomLayer = blRT;
+        puzzleScript.topPiece = tpRT;
         puzzleScript.backButton = puzzleBackBtn.GetComponent<Button>();
-
-        // Tablo butonunu script'e referans olarak ver (script Start'da bağlar)
-        puzzleScript.paintingRightButton = paintingClickBtn;
-
-        // Tablo interactable'ına puzzle referansını ver
-        PuzzleOpener tabloOpener = GameObject.Find("Tablo")?.GetComponent<PuzzleOpener>();
-        if (tabloOpener != null)
-            tabloOpener.targetPuzzle = puzzleScript;
+        puzzleScript.paintingButton = paintingClickBtn;
 
         puzzlePanel.SetActive(false);
 
@@ -416,6 +338,7 @@ public class CubeEscapeSetup
         UI_MoonSetup.CreateUIMoonPuzzle();
 
         // ====== GÜNEY DUVAR (SOUND COLOR PUZZLE) ======
+        // Bu çağrı Kasa interactable'ını otomatik olarak bulur ve SoundColorPuzzle panelini bağlar.
         UI_SoundColorPuzzleSetup.CreateUISoundColorPuzzle();
 
         Selection.activeGameObject = root;
