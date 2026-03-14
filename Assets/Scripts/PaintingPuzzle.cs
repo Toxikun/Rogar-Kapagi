@@ -12,16 +12,10 @@ public class PaintingPuzzle : MonoBehaviour
     public RectTransform paintingLeft;   // Sol parça (yerinde kalır)
     public RectTransform paintingRight;  // Sağ parça (düşecek)
 
-    [Header("Knife Toggle")]
-    public Button toggleOnButton;
-    public Button toggleOffButton;
-    public TextMeshProUGUI toggleStatusText;
-
     [Header("Back Button")]
     public Button backButton;
 
     [Header("State")]
-    public bool hasKnife = false;
     public bool isCut = false;
 
     // Sağ parça butonu (kesme işlemi için tıklandığında)
@@ -29,10 +23,6 @@ public class PaintingPuzzle : MonoBehaviour
 
     private void Start()
     {
-        if (toggleOnButton != null)
-            toggleOnButton.onClick.AddListener(TurnKnifeOn);
-        if (toggleOffButton != null)
-            toggleOffButton.onClick.AddListener(TurnKnifeOff);
         if (backButton != null)
             backButton.onClick.AddListener(ClosePuzzle);
         if (paintingRightButton != null)
@@ -40,8 +30,6 @@ public class PaintingPuzzle : MonoBehaviour
 
         if (puzzlePanel != null)
             puzzlePanel.SetActive(false);
-
-        UpdateToggleUI();
     }
 
     // ===== PUZZLE AÇ/KAPAT =====
@@ -57,31 +45,6 @@ public class PaintingPuzzle : MonoBehaviour
             puzzlePanel.SetActive(false);
     }
 
-    // ===== BIÇAK ON/OFF =====
-    private void TurnKnifeOn()
-    {
-        hasKnife = true;
-        GameManager gm = GameManager.Instance;
-        if (gm != null && gm.inventory != null)
-            gm.inventory.AddItem("Maket Bıçağı");
-        UpdateToggleUI();
-    }
-
-    private void TurnKnifeOff()
-    {
-        hasKnife = false;
-        GameManager gm = GameManager.Instance;
-        if (gm != null && gm.inventory != null)
-            gm.inventory.RemoveItem("Maket Bıçağı");
-        UpdateToggleUI();
-    }
-
-    private void UpdateToggleUI()
-    {
-        if (toggleStatusText != null)
-            toggleStatusText.text = hasKnife ? "Bıçak: AÇIK" : "Bıçak: KAPALI";
-    }
-
     // ===== TABLOYA TIKLAMA =====
     public void OnPaintingClicked()
     {
@@ -92,29 +55,21 @@ public class PaintingPuzzle : MonoBehaviour
         }
 
         GameManager gm = GameManager.Instance;
-        if (gm == null) return;
+        if (gm == null || gm.inventory == null) return;
 
-        // Bıçak envanterde var mı?
-        if (!hasKnife)
-        {
-            Debug.LogWarning("Maket bıçağın yok! Önce bıçağı al.");
-            gm.dialogBox.Show("Bir kesici alete ihtiyacın var.", 3f);
-            return;
-        }
-
-        // Bıçak envanterde seçili mi?
+        // Ay envanterde seçili mi?
         string selected = gm.inventory.GetSelectedItem();
-        if (selected != "Maket Bıçağı")
+        if (selected != "Ay")
         {
-            Debug.LogWarning("Maket bıçağı seçili değil! Envanterdeki bıçağa tıkla.");
-            gm.dialogBox.Show("Önce envanterden maket bıçağını seç.", 3f);
+            Debug.LogWarning("Ay seçili değil! Envanterden ay objesini seç.");
+            gm.dialogBox.Show("Tabloyu kesmek için keskin bir şeye (Ay) ihtiyacın var.", 3f);
             return;
         }
 
         // KES!
         isCut = true;
         Debug.Log("Tablo kesildi!");
-        gm.dialogBox.Show("Tabloyu kestin! Arkasında bir şey var...", 3f);
+        gm.dialogBox.Show("Ay bıçağı ile tabloyu kestin! Arkasında bir şey var...", 3f);
         StartCoroutine(FallAnimation(paintingRight));
     }
 
