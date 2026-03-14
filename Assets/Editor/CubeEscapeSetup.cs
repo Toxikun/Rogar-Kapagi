@@ -106,16 +106,19 @@ public class CubeEscapeSetup
             CreateWallTitle(wall.transform, "Güney Duvar");
         }
 
-        // ====== BATI DUVAR (3) – Kitaplık + Ayna ======
+        // ====== BATI DUVAR (3) – Kitaplık (Puzzle açar) + Ayna ======
         {
             GameObject wall = wallPanels[3];
 
-            Interactable bookshelf = CreateInteractableButton(wall.transform, "Kitaplik",
-                new Vector2(180, 0), new Vector2(200, 350),
-                new Color(0.28f, 0.15f, 0.08f), 3);
-            bookshelf.type = InteractableType.Clue;
-            bookshelf.clueMessage = "Kitapların arasında eski bir not buldun:\n\"İpucu: Kuzey duvarındaki tabloya bak.\"";
-            CreateLabel(bookshelf.transform, "KİTAPLIK", 24, new Color(0.8f, 0.65f, 0.45f));
+            // Kitaplık → Tıklayınca puzzle sahnesini açacak (PuzzleOpener ile)
+            GameObject bookshelfObj = CreatePanel("Kitaplik", wall.transform, new Color(0.28f, 0.15f, 0.08f));
+            bookshelfObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(180, 0);
+            bookshelfObj.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 350);
+            bookshelfObj.AddComponent<Shadow>().effectColor = new Color(0, 0, 0, 0.5f);
+            bookshelfObj.GetComponent<Shadow>().effectDistance = new Vector2(0, -5);
+            Button bookshelfBtn = bookshelfObj.AddComponent<Button>();
+            PuzzleOpener opener = bookshelfObj.AddComponent<PuzzleOpener>(); // Listener'ı bu bağlayacak
+            CreateLabel(bookshelfObj.transform, "KİTAPLIK\n(Tıkla)", 24, new Color(0.8f, 0.65f, 0.45f));
 
             Interactable mirror = CreateInteractableButton(wall.transform, "Ayna",
                 new Vector2(-200, 50), new Vector2(150, 220),
@@ -173,8 +176,9 @@ public class CubeEscapeSetup
             slotRT.anchorMax = new Vector2(0.5f, 0.5f);
 
             Button slotBtn = slot.AddComponent<Button>();
-            int idx = i;
-            slotBtn.onClick.AddListener(() => invScript.OnSlotClicked(idx));
+            InventorySlot invSlot = slot.AddComponent<InventorySlot>();
+            invSlot.slotIndex = i;
+            invSlot.inventory = invScript;
 
             invScript.slots.Add(slot.GetComponent<Image>());
 
@@ -281,6 +285,81 @@ public class CubeEscapeSetup
         // Kasa interactable'ına referansı bağla
         Interactable safeInteractable = GameObject.Find("Kasa")?.GetComponent<Interactable>();
         if (safeInteractable != null) safeInteractable.safePopup = safePanel;
+
+        // ====== TABLO PUZZLE PANELİ ======
+        GameObject puzzlePanel = CreatePanel("PuzzlePanel", canvasObj.transform, new Color(0.08f, 0.08f, 0.10f));
+        Stretch(puzzlePanel);
+
+        // Geri Butonu (sol üst)
+        GameObject puzzleBackBtn = CreateButton(puzzlePanel.transform, "BackButton",
+            new Vector2(-400, 400), new Vector2(160, 70),
+            new Color(0.5f, 0.2f, 0.2f), "← GERİ", 28);
+
+        // Tablo – 2 Parça (Sol + Sağ) yan yana
+        // Sol parça (yerinde kalır)
+        GameObject paintingLeft = CreatePanel("PaintingLeft", puzzlePanel.transform, new Color(0.50f, 0.35f, 0.18f));
+        RectTransform plRT = paintingLeft.GetComponent<RectTransform>();
+        plRT.anchoredPosition = new Vector2(-120, 30);
+        plRT.sizeDelta = new Vector2(230, 400);
+        CreateTextObj(paintingLeft.transform, "ArtLeft", Vector2.zero, Vector2.zero,
+            "🖼️\nSol\nParça", 28, new Color(0.9f, 0.8f, 0.6f));
+        RectTransform artLeftTR = paintingLeft.transform.GetChild(0).GetComponent<RectTransform>();
+        artLeftTR.anchorMin = Vector2.zero; artLeftTR.anchorMax = Vector2.one; artLeftTR.sizeDelta = Vector2.zero;
+        paintingLeft.transform.GetChild(0).GetComponent<TextMeshProUGUI>().raycastTarget = false;
+
+        // Sağ parça (bu düşecek – tıklanabilir)
+        GameObject paintingRight = CreatePanel("PaintingRight", puzzlePanel.transform, new Color(0.45f, 0.30f, 0.15f));
+        RectTransform prRT = paintingRight.GetComponent<RectTransform>();
+        prRT.anchoredPosition = new Vector2(112, 30);
+        prRT.sizeDelta = new Vector2(230, 400);
+        Button paintingClickBtn = paintingRight.AddComponent<Button>();
+        CreateTextObj(paintingRight.transform, "ArtRight", Vector2.zero, Vector2.zero,
+            "🖼️\nSağ\nParça\n\n✂ Kes", 26, new Color(0.9f, 0.8f, 0.6f));
+        RectTransform artRightTR = paintingRight.transform.GetChild(0).GetComponent<RectTransform>();
+        artRightTR.anchorMin = Vector2.zero; artRightTR.anchorMax = Vector2.one; artRightTR.sizeDelta = Vector2.zero;
+        paintingRight.transform.GetChild(0).GetComponent<TextMeshProUGUI>().raycastTarget = false;
+
+        // Kesim çizgisi (dikey – iki parça arasında)
+        GameObject cutLine = CreatePanel("CutLine", puzzlePanel.transform, new Color(0.8f, 0.2f, 0.2f, 0.6f));
+        cutLine.GetComponent<RectTransform>().anchoredPosition = new Vector2(-3, 30);
+        cutLine.GetComponent<RectTransform>().sizeDelta = new Vector2(4, 420);
+
+        // ON/OFF Toggle (sol taraf)
+        GameObject toggleArea = new GameObject("ToggleArea", typeof(RectTransform));
+        toggleArea.transform.SetParent(puzzlePanel.transform, false);
+        toggleArea.GetComponent<RectTransform>().anchoredPosition = new Vector2(-380, -100);
+
+        GameObject toggleOnBtn = CreateButton(toggleArea.transform, "ToggleON",
+            new Vector2(0, 40), new Vector2(130, 55),
+            new Color(0.15f, 0.65f, 0.15f), "ON", 26);
+
+        GameObject toggleOffBtn = CreateButton(toggleArea.transform, "ToggleOFF",
+            new Vector2(0, -25), new Vector2(130, 55),
+            new Color(0.65f, 0.15f, 0.15f), "OFF", 26);
+
+        GameObject toggleStatus = CreateTextObj(toggleArea.transform, "ToggleStatus",
+            new Vector2(0, 90), new Vector2(200, 40), "Bıçak: KAPALI", 22, new Color(0.8f, 0.8f, 0.8f));
+
+        // PaintingPuzzle script bağla
+        PaintingPuzzle puzzleScript = puzzlePanel.AddComponent<PaintingPuzzle>();
+        puzzleScript.puzzlePanel = puzzlePanel;
+        puzzleScript.paintingLeft = plRT;
+        puzzleScript.paintingRight = prRT;
+        puzzleScript.toggleOnButton = toggleOnBtn.GetComponent<Button>();
+        puzzleScript.toggleOffButton = toggleOffBtn.GetComponent<Button>();
+        puzzleScript.toggleStatusText = toggleStatus.GetComponent<TextMeshProUGUI>();
+        puzzleScript.backButton = puzzleBackBtn.GetComponent<Button>();
+
+        // Tablo butonunu script'e referans olarak ver (script kendi Start()'ında bağlar)
+        puzzleScript.paintingRightButton = paintingClickBtn;
+
+        // Kitaplık objesine puzzle referansını ver
+        PuzzleOpener kitaplikOpener = GameObject.Find("Kitaplik")?.GetComponent<PuzzleOpener>();
+        if (kitaplikOpener != null)
+            kitaplikOpener.targetPuzzle = puzzleScript;
+
+        puzzlePanel.SetActive(false);
+
 
         // ====== KAZANMA EKRANI ======
         GameObject winScreen = CreatePanel("WinScreen", canvasObj.transform, new Color(0, 0, 0, 0.9f));
