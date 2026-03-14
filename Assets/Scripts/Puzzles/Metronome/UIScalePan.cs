@@ -1,61 +1,124 @@
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 
 namespace Puzzles.MetronomeUI
 {
-    public class UIScalePan : MonoBehaviour, IPointerDownHandler
+    /// <summary>
+    /// Attached to each scale pan area (left or right).
+    /// When clicked while holding a weight, the weight is placed here.
+    /// Weights are laid out horizontally side-by-side on top of the pan bar.
+    /// </summary>
+    [RequireComponent(typeof(Image))]
+    public class UIScalePan : MonoBehaviour, IPointerClickHandler
     {
         public bool isLeftPan;
-        public Transform weightPlacementPoint;
-        private List<UIWeightInteractable> localWeights = new List<UIWeightInteractable>();
+
+        [Header("Layout")]
+        [Tooltip("Horizontal spacing between weight squares")]
+        public float weightSpacing = 10f;
+        [Tooltip("Pixel offset above the pan bar where weights sit")]
+        public float weightYOffset = 10f;
+
+        private List<UIWeightInteractable> _weights = new List<UIWeightInteractable>();
+        private RectTransform _rect;
 
         public float TotalWeight
         {
             get
             {
                 float total = 0f;
-                foreach (var w in localWeights) total += w.weightValue;
+                foreach (var w in _weights) total += w.weightValue;
                 return total;
             }
         }
 
-        public void OnPointerDown(PointerEventData eventData)
+        public int WeightCount => _weights.Count;
+
+        private void Awake()
         {
-            MetronomeUIPuzzleManager manager = MetronomeUIPuzzleManager.Instance;
-            if (manager != null && manager.HeldWeight != null)
+            _rect = GetComponent<RectTransform>();
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            var manager = MetronomeUIPuzzleManager.Instance;
+            if (manager == null || manager.isSolved) return;
+
+            if (manager.HeldWeight != null)
             {
-                // Place the currently held weight into this pan
                 PlaceWeight(manager.HeldWeight);
+                manager.ClearHeldWeight();
+                manager.RecalculateBalance();
             }
         }
 
+        /// <summary>
+        /// Add a weight to this pan and re-layout all weights.
+        /// </summary>
         public void PlaceWeight(UIWeightInteractable weight)
         {
-            // Remove from previous pan if it was in one
-            if (weight.CurrentPan != null)
-            {
-                weight.CurrentPan.RemoveWeight(weight);
-            }
+            if (_weights.Contains(weight)) return;
 
-            localWeights.Add(weight);
+            _weights.Add(weight);
             weight.CurrentPan = this;
+
+            // Parent the weight under this pan
+            weight.transform.SetParent(this.transform, false);
             
-            // visually parent it to the pan's layout/placement point
-            weight.transform.SetParent(weightPlacementPoint != null ? weightPlacementPoint : this.transform, false);
-            
-            MetronomeUIPuzzleManager.Instance.ClearHeldWeight();
-            MetronomeUIPuzzleManager.Instance.RecalculateBalance();
+            LayoutWeights();
         }
 
+        /// <summary>
+        /// Remove a weight from this pan but don't re-parent it (caller handles that).
+        /// </summary>
         public void RemoveWeight(UIWeightInteractable weight)
         {
-            if (localWeights.Contains(weight))
+            if (_weights.Remove(weight))
             {
-                localWeights.Remove(weight);
                 weight.CurrentPan = null;
-                // Move it back up higher in hierarchy so it doesn't get masked by the pan
-                weight.transform.SetParent(MetronomeUIPuzzleManager.Instance.transform, false); 
+                LayoutWeights();
+            }
+        }
+
+        /// <summary>
+        /// Position all weights side-by-side horizontally, centered on the pan, sitting on top.
+        /// </summary>
+        private void LayoutWeights()
+        {
+            if (_weights.Count == 0) return;
+
+            float panHeight = _rect.rect.height;
+
+            // Calculate total width of all weights + spacing
+            float totalWidth = 0f;
+            for (int i = 0; i < _weights.Count; i++)
+            {
+                var wRect = _weights[i].GetComponent<RectTransform>();
+                totalWidth += wRect.rect.width;
+                if (i < _weights.Count - 1) totalWidth += weightSpacing;
+            }
+
+            // Start position (left edge, centered)
+            float startX = -totalWidth / 2f;
+            float currentX = startX;
+
+            for (int i = 0; i < _weights.Count; i++)
+            {
+                var wRect = _weights[i].GetComponent<RectTransform>();
+                float halfW = wRect.rect.width / 2f;
+                float halfH = wRect.rect.height / 2f;
+
+                // Position: centered horizontally, sitting on top of the pan bar
+                wRect.anchorMin = new Vector2(0.5f, 1f); // top-center anchor
+                wRect.anchorMax = new Vector2(0.5f, 1f);
+                wRect.anchoredPosition = new Vector2(
+                    currentX + halfW,
+                    weightYOffset + halfH
+                );
+
+                currentX += wRect.rect.width + weightSpacing;
             }
         }
     }

@@ -5,189 +5,369 @@ using UnityEngine.UI;
 using TMPro;
 using Puzzles.MetronomeUI;
 
+/// <summary>
+/// Editor tool that generates the MetronomePuzzlePanel inside GameCanvas
+/// and links the Dolap interactable to open it.
+///
+/// Layout:
+///   MetronomePuzzlePanel (full-screen dark overlay)
+///     ├── OuterView (shows the "box" rectangle you click to enter)
+///     │     ├── BoxImage (a tall rectangle)
+///     │     ├── InstructionText ("Kutuya dokun")
+///     │     └── CloseButton
+///     └── InnerView (the actual scale puzzle)
+///           ├── Title ("Terazi Bulmacası")
+///           ├── ScaleBase (horizontal bar connecting the two pans)
+///           ├── LeftPanBar (horizontal rectangle, weights sit on top)
+///           │     └── [Weight squares parented here by script]
+///           ├── RightPanBar (horizontal rectangle)
+///           │     └── [Weight squares parented here by script]  
+///           ├── Weight_1kg_L1, Weight_1kg_L2, Weight_1kg_L3 (small white squares)
+///           ├── Weight_2kg_L1 (larger cyan square)
+///           ├── Weight_1kg_R1 (small white square)
+///           ├── Weight_2kg_R1 (larger cyan square)
+///           ├── WinText ("Senkronize ettin!")
+///           ├── BackButton ("Geri")
+///           └── CloseButton ("Kapat")
+/// </summary>
 public class UI_MetronomeSetup : EditorWindow
 {
     [MenuItem("Tools/Setup UI Metronome Puzzle (Kuzey Duvar)")]
     public static void CreateUIMetronomePuzzle()
     {
+        // 0. Cleanup: remove old panel if exists
+        var oldPanel = GameObject.Find("MetronomePuzzlePanel");
+        if (oldPanel != null)
+        {
+            DestroyImmediate(oldPanel);
+            Debug.Log("Removed old MetronomePuzzlePanel.");
+        }
+
         // 1. Find GameCanvas
         GameObject gameCanvas = GameObject.Find("GameCanvas");
         if (gameCanvas == null)
         {
-            Debug.LogError("GameCanvas not found! Make sure you are in SampleScene.");
+            Debug.LogError("GameCanvas not found! Open SampleScene first.");
             return;
         }
 
-        // 2. Create PuzzlePanel if it doesn't exist, or just create a specific one
-        GameObject metronomePanel = new GameObject("MetronomePuzzlePanel");
-        metronomePanel.transform.SetParent(gameCanvas.transform, false);
-        var panelRect = metronomePanel.AddComponent<RectTransform>();
-        panelRect.anchorMin = Vector2.zero;
-        panelRect.anchorMax = Vector2.one;
-        panelRect.sizeDelta = Vector2.zero;
-        panelRect.anchoredPosition = Vector2.zero;
-        
-        var bgImage = metronomePanel.AddComponent<Image>();
-        bgImage.color = new Color(0.1f, 0.1f, 0.1f, 0.95f); // Dark background
+        // ==========================================
+        // 2. ROOT PANEL (full screen dark overlay)
+        // ==========================================
+        GameObject panel = CreateUIObject("MetronomePuzzlePanel", gameCanvas.transform);
+        StretchFull(panel);
+        var panelImg = panel.AddComponent<Image>();
+        panelImg.color = new Color(0.05f, 0.05f, 0.08f, 0.97f);
+        var manager = panel.AddComponent<MetronomeUIPuzzleManager>();
 
-        var manager = metronomePanel.AddComponent<MetronomeUIPuzzleManager>();
-        
-        // 3. Close Button
-        GameObject closeBtnGo = new GameObject("CloseButton");
-        closeBtnGo.transform.SetParent(metronomePanel.transform, false);
-        var closeRect = closeBtnGo.AddComponent<RectTransform>();
-        closeRect.anchorMin = new Vector2(1, 1);
-        closeRect.anchorMax = new Vector2(1, 1);
-        closeRect.sizeDelta = new Vector2(150, 80);
-        closeRect.anchoredPosition = new Vector2(-100, -60);
-        
-        var closeImg = closeBtnGo.AddComponent<Image>();
-        closeImg.color = Color.red;
-        var closeBtn = closeBtnGo.AddComponent<Button>();
-        closeBtn.onClick.AddListener(() => { metronomePanel.SetActive(false); });
+        // ==========================================
+        // 3. OUTER VIEW (the "box" you click to enter)
+        // ==========================================
+        GameObject outerView = CreateUIObject("OuterView", panel.transform);
+        StretchFull(outerView);
+        manager.outerView = outerView;
 
-        GameObject closeTextGo = new GameObject("Text");
-        closeTextGo.transform.SetParent(closeBtnGo.transform, false);
-        var ctRect = closeTextGo.AddComponent<RectTransform>();
-        ctRect.anchorMin = Vector2.zero; ctRect.anchorMax = Vector2.one;
-        ctRect.sizeDelta = Vector2.zero;
-        var cText = closeTextGo.AddComponent<TextMeshProUGUI>();
-        cText.text = "Kapat";
-        cText.color = Color.white;
-        cText.alignment = TextAlignmentOptions.Center;
+        // Box rectangle (dikdörtgen)
+        GameObject box = CreateUIObject("BoxImage", outerView.transform);
+        var boxRect = box.GetComponent<RectTransform>();
+        boxRect.anchorMin = new Vector2(0.5f, 0.5f);
+        boxRect.anchorMax = new Vector2(0.5f, 0.5f);
+        boxRect.sizeDelta = new Vector2(300, 400);
+        boxRect.anchoredPosition = Vector2.zero;
+        var boxImg = box.AddComponent<Image>();
+        boxImg.color = new Color(0.45f, 0.28f, 0.15f, 1f); // Brown wood-like color
 
-        // 4. "Senkronize ettin!" Text
-        GameObject winTextGo = new GameObject("WinText");
-        winTextGo.transform.SetParent(metronomePanel.transform, false);
-        var winRect = winTextGo.AddComponent<RectTransform>();
+        // Box label
+        GameObject boxLabel = CreateUIObject("BoxLabel", box.transform);
+        StretchFull(boxLabel);
+        var boxText = boxLabel.AddComponent<TextMeshProUGUI>();
+        boxText.text = "?";
+        boxText.fontSize = 72;
+        boxText.alignment = TextAlignmentOptions.Center;
+        boxText.color = new Color(1f, 0.9f, 0.7f);
+
+        // Box click button (transparent, covers the box)
+        var boxBtn = box.AddComponent<Button>();
+        boxBtn.targetGraphic = boxImg;
+
+        // Instruction text
+        GameObject instrGo = CreateUIObject("InstructionText", outerView.transform);
+        var instrRect = instrGo.GetComponent<RectTransform>();
+        instrRect.anchorMin = new Vector2(0.5f, 0.2f);
+        instrRect.anchorMax = new Vector2(0.5f, 0.2f);
+        instrRect.sizeDelta = new Vector2(500, 60);
+        var instrText = instrGo.AddComponent<TextMeshProUGUI>();
+        instrText.text = "Kutuya dokun";
+        instrText.fontSize = 32;
+        instrText.alignment = TextAlignmentOptions.Center;
+        instrText.color = Color.white;
+        instrText.fontStyle = FontStyles.Italic;
+
+        // Close button (outer view)
+        Button outerCloseBtn = CreateButton("CloseButton", outerView.transform,
+            new Vector2(1f, 1f), new Vector2(1f, 1f),
+            new Vector2(-80, -50), new Vector2(120, 50),
+            "X", 28, new Color(0.8f, 0.2f, 0.2f), Color.white);
+        manager.closeButton = outerCloseBtn;
+
+        // ==========================================
+        // 4. INNER VIEW (the scale puzzle)
+        // ==========================================
+        GameObject innerView = CreateUIObject("InnerView", panel.transform);
+        StretchFull(innerView);
+        manager.innerView = innerView;
+
+        // Title
+        GameObject titleGo = CreateUIObject("Title", innerView.transform);
+        var titleRect = titleGo.GetComponent<RectTransform>();
+        titleRect.anchorMin = new Vector2(0.5f, 1f);
+        titleRect.anchorMax = new Vector2(0.5f, 1f);
+        titleRect.sizeDelta = new Vector2(500, 60);
+        titleRect.anchoredPosition = new Vector2(0, -40);
+        var titleText = titleGo.AddComponent<TextMeshProUGUI>();
+        titleText.text = "Terazi Bulmacası";
+        titleText.fontSize = 36;
+        titleText.alignment = TextAlignmentOptions.Center;
+        titleText.color = Color.white;
+        titleText.fontStyle = FontStyles.Bold;
+
+        // Scale base / fulcrum (center triangle/support visual)
+        GameObject fulcrum = CreateUIObject("Fulcrum", innerView.transform);
+        var fulcrumRect = fulcrum.GetComponent<RectTransform>();
+        fulcrumRect.anchorMin = new Vector2(0.5f, 0.5f);
+        fulcrumRect.anchorMax = new Vector2(0.5f, 0.5f);
+        fulcrumRect.sizeDelta = new Vector2(30, 80);
+        fulcrumRect.anchoredPosition = new Vector2(0, -50);
+        var fulcrumImg = fulcrum.AddComponent<Image>();
+        fulcrumImg.color = new Color(0.6f, 0.6f, 0.6f);
+
+        // Scale beam (horizontal bar connecting both pans)
+        GameObject beam = CreateUIObject("ScaleBeam", innerView.transform);
+        var beamRect = beam.GetComponent<RectTransform>();
+        beamRect.anchorMin = new Vector2(0.5f, 0.5f);
+        beamRect.anchorMax = new Vector2(0.5f, 0.5f);
+        beamRect.sizeDelta = new Vector2(700, 8);
+        beamRect.anchoredPosition = new Vector2(0, -10);
+        var beamImg = beam.AddComponent<Image>();
+        beamImg.color = new Color(0.5f, 0.5f, 0.5f);
+
+        // LEFT PAN BAR
+        GameObject leftPanGo = CreateUIObject("LeftPanBar", innerView.transform);
+        var leftPanRect = leftPanGo.GetComponent<RectTransform>();
+        leftPanRect.anchorMin = new Vector2(0.5f, 0.5f);
+        leftPanRect.anchorMax = new Vector2(0.5f, 0.5f);
+        leftPanRect.sizeDelta = new Vector2(280, 30);
+        leftPanRect.anchoredPosition = new Vector2(-200, -30);
+        var leftPanImg = leftPanGo.AddComponent<Image>();
+        leftPanImg.color = new Color(0.35f, 0.35f, 0.4f);
+        var leftPan = leftPanGo.AddComponent<UIScalePan>();
+        leftPan.isLeftPan = true;
+        leftPan.weightSpacing = 8f;
+        leftPan.weightYOffset = 5f;
+        manager.leftPan = leftPan;
+
+        // Left pan label
+        GameObject leftLabel = CreateUIObject("Label", leftPanGo.transform);
+        StretchFull(leftLabel);
+        var leftLabelText = leftLabel.AddComponent<TextMeshProUGUI>();
+        leftLabelText.text = "Sol Kol";
+        leftLabelText.fontSize = 16;
+        leftLabelText.alignment = TextAlignmentOptions.Center;
+        leftLabelText.color = new Color(0.8f, 0.8f, 0.8f);
+
+        // RIGHT PAN BAR
+        GameObject rightPanGo = CreateUIObject("RightPanBar", innerView.transform);
+        var rightPanRect = rightPanGo.GetComponent<RectTransform>();
+        rightPanRect.anchorMin = new Vector2(0.5f, 0.5f);
+        rightPanRect.anchorMax = new Vector2(0.5f, 0.5f);
+        rightPanRect.sizeDelta = new Vector2(280, 30);
+        rightPanRect.anchoredPosition = new Vector2(200, -30);
+        var rightPanImg = rightPanGo.AddComponent<Image>();
+        rightPanImg.color = new Color(0.35f, 0.35f, 0.4f);
+        var rightPan = rightPanGo.AddComponent<UIScalePan>();
+        rightPan.isLeftPan = false;
+        rightPan.weightSpacing = 8f;
+        rightPan.weightYOffset = 5f;
+        manager.rightPan = rightPan;
+
+        // Right pan label
+        GameObject rightLabel = CreateUIObject("Label", rightPanGo.transform);
+        StretchFull(rightLabel);
+        var rightLabelText = rightLabel.AddComponent<TextMeshProUGUI>();
+        rightLabelText.text = "Sağ Kol";
+        rightLabelText.fontSize = 16;
+        rightLabelText.alignment = TextAlignmentOptions.Center;
+        rightLabelText.color = new Color(0.8f, 0.8f, 0.8f);
+
+        // ==========================================
+        // 5. WEIGHTS
+        // ==========================================
+        // Left: 3x 1kg (white) + 1x 2kg (cyan)
+        CreateWeight("Weight_1kg_L1", 1f, 60, new Color(0.9f, 0.9f, 0.85f), leftPan);
+        CreateWeight("Weight_1kg_L2", 1f, 60, new Color(0.9f, 0.9f, 0.85f), leftPan);
+        CreateWeight("Weight_1kg_L3", 1f, 60, new Color(0.9f, 0.9f, 0.85f), leftPan);
+        CreateWeight("Weight_2kg_L1", 2f, 80, new Color(0.3f, 0.8f, 0.85f), leftPan);
+
+        // Right: 1x 1kg (white) + 1x 2kg (cyan)
+        CreateWeight("Weight_1kg_R1", 1f, 60, new Color(0.9f, 0.9f, 0.85f), rightPan);
+        CreateWeight("Weight_2kg_R1", 2f, 80, new Color(0.3f, 0.8f, 0.85f), rightPan);
+
+        // ==========================================
+        // 6. WIN TEXT
+        // ==========================================
+        GameObject winGo = CreateUIObject("WinText", innerView.transform);
+        var winRect = winGo.GetComponent<RectTransform>();
         winRect.anchorMin = new Vector2(0.5f, 0.8f);
         winRect.anchorMax = new Vector2(0.5f, 0.8f);
-        winRect.sizeDelta = new Vector2(600, 100);
-        winRect.anchoredPosition = Vector2.zero;
-        var wText = winTextGo.AddComponent<TextMeshProUGUI>();
-        wText.text = "Senkronize ettin!";
-        wText.color = Color.green;
-        wText.fontSize = 50;
-        wText.alignment = TextAlignmentOptions.Center;
-        wText.fontStyle = FontStyles.Bold;
-        manager.winText = wText;
+        winRect.sizeDelta = new Vector2(600, 80);
+        var winTxt = winGo.AddComponent<TextMeshProUGUI>();
+        winTxt.text = "Senkronize ettin!";
+        winTxt.fontSize = 48;
+        winTxt.alignment = TextAlignmentOptions.Center;
+        winTxt.color = new Color(0.2f, 1f, 0.4f);
+        winTxt.fontStyle = FontStyles.Bold;
+        winGo.SetActive(false);
+        manager.winText = winTxt;
 
-        // 5. Left Pan
-        var leftPan = CreateScalePan(metronomePanel.transform, "LeftPan", new Vector2(-300, -100));
-        manager.leftPan = leftPan;
-        leftPan.isLeftPan = true;
+        // ==========================================
+        // 7. INNER VIEW BUTTONS
+        // ==========================================
+        // Back button
+        Button backBtn = CreateButton("BackButton", innerView.transform,
+            new Vector2(0f, 1f), new Vector2(0f, 1f),
+            new Vector2(80, -50), new Vector2(120, 50),
+            "Geri", 22, new Color(0.3f, 0.3f, 0.5f), Color.white);
+        manager.backButton = backBtn;
 
-        // 6. Right Pan
-        var rightPan = CreateScalePan(metronomePanel.transform, "RightPan", new Vector2(300, -100));
-        manager.rightPan = rightPan;
-        leftPan.isLeftPan = false;
+        // Close button (inner view) - reuse the same close ref
+        Button innerCloseBtn = CreateButton("CloseButton_Inner", innerView.transform,
+            new Vector2(1f, 1f), new Vector2(1f, 1f),
+            new Vector2(-80, -50), new Vector2(120, 50),
+            "Kapat", 22, new Color(0.8f, 0.2f, 0.2f), Color.white);
+        // Wire inner close button in Start() via code, or just add listener here
+        innerCloseBtn.onClick.AddListener(() => { panel.SetActive(false); });
 
-        // 7. Initial Weights
-        // Left Side: 3x 1kg, 1x 2kg
-        CreateWeight(metronomePanel.transform, "Weight_1kg_L1", new Vector2(-400, 50), 1f, Color.white, leftPan);
-        CreateWeight(metronomePanel.transform, "Weight_1kg_L2", new Vector2(-300, 50), 1f, Color.white, leftPan);
-        CreateWeight(metronomePanel.transform, "Weight_1kg_L3", new Vector2(-200, 50), 1f, Color.white, leftPan);
-        CreateWeight(metronomePanel.transform, "Weight_2kg_L1", new Vector2(-300, 150), 2f, Color.cyan, leftPan);
+        // ==========================================
+        // 8. WIRE UP BOX BUTTON → EnterInnerView
+        // ==========================================
+        // We need to connect via a small helper since manager isn't alive yet in editor.
+        // Best approach: add a small component that calls manager.EnterInnerView on click
+        var boxOpener = box.AddComponent<Button>();
+        // Remove duplicate - we already added Button above, reuse it
+        DestroyImmediate(boxOpener); // remove the duplicate
+        boxBtn.onClick.AddListener(() =>
+        {
+            var mgr = panel.GetComponent<MetronomeUIPuzzleManager>();
+            if (mgr != null) mgr.EnterInnerView();
+        });
 
-        // Right Side: 1x 1kg, 1x 2kg
-        CreateWeight(metronomePanel.transform, "Weight_1kg_R1", new Vector2(250, 50), 1f, Color.white, rightPan);
-        CreateWeight(metronomePanel.transform, "Weight_2kg_R1", new Vector2(350, 50), 2f, Color.cyan, rightPan);
+        // ==========================================
+        // 9. HIDE PANEL & LINK TO DOLAP
+        // ==========================================
+        panel.SetActive(false);
 
-        // Temporarily hide the panel
-        metronomePanel.SetActive(false);
+        GameObject dolap = GameObject.Find("Dolap");
+        if (dolap == null)
+        {
+            // Try full path
+            dolap = GameObject.Find("CubeEscapeRoot/GameCanvas/Wall_North/Dolap");
+        }
 
-        // 8. Link to Dolap interactable
-        GameObject dolap = GameObject.Find("CubeEscapeRoot/GameCanvas/Wall_North/Dolap");
         if (dolap != null)
         {
             var interactable = dolap.GetComponent<Interactable>();
             if (interactable != null)
             {
                 interactable.type = InteractableType.Puzzle;
-                interactable.safePopup = metronomePanel; // using safePopup variable for generic puzzle panel
+                interactable.safePopup = panel;
                 EditorUtility.SetDirty(interactable);
-                Debug.Log("Linked MetronomePuzzlePanel to Dolap interactable.");
+                Debug.Log("Linked MetronomePuzzlePanel → Dolap (Puzzle type).");
             }
         }
         else
         {
-            Debug.LogWarning("Dolap object not found to link interactable.");
+            Debug.LogWarning("Dolap not found! You'll need to manually assign the puzzle panel.");
         }
 
-        Debug.Log("UI Metronome Puzzle successfully created!");
+        // Mark scene dirty
+        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
+            UnityEngine.SceneManagement.SceneManager.GetActiveScene()
+        );
+
+        Debug.Log("✓ UI Metronome Puzzle created successfully!");
     }
 
-    private static UIScalePan CreateScalePan(Transform parent, string name, Vector2 anchoredPos)
-    {
-        GameObject panGo = new GameObject(name);
-        panGo.transform.SetParent(parent, false);
-        var rect = panGo.AddComponent<RectTransform>();
-        rect.anchorMin = new Vector2(0.5f, 0.5f);
-        rect.anchorMax = new Vector2(0.5f, 0.5f);
-        rect.sizeDelta = new Vector2(250, 100);
-        rect.anchoredPosition = anchoredPos;
-        
-        var img = panGo.AddComponent<Image>();
-        img.color = new Color(0.3f, 0.3f, 0.3f, 1f); // Gray box
+    // ===== HELPER METHODS =====
 
-        GameObject textGo = new GameObject("Label");
-        textGo.transform.SetParent(panGo.transform, false);
-        var tRect = textGo.AddComponent<RectTransform>();
-        tRect.anchorMin = Vector2.zero; tRect.anchorMax = Vector2.one;
-        tRect.sizeDelta = Vector2.zero;
+    private static GameObject CreateUIObject(string name, Transform parent)
+    {
+        GameObject go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        go.AddComponent<RectTransform>();
+        return go;
+    }
+
+    private static void StretchFull(GameObject go)
+    {
+        var rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.sizeDelta = Vector2.zero;
+        rt.anchoredPosition = Vector2.zero;
+    }
+
+    private static Button CreateButton(string name, Transform parent,
+        Vector2 anchorMin, Vector2 anchorMax,
+        Vector2 anchoredPos, Vector2 size,
+        string label, int fontSize, Color bgColor, Color textColor)
+    {
+        GameObject btnGo = CreateUIObject(name, parent);
+        var btnRect = btnGo.GetComponent<RectTransform>();
+        btnRect.anchorMin = anchorMin;
+        btnRect.anchorMax = anchorMax;
+        btnRect.sizeDelta = size;
+        btnRect.anchoredPosition = anchoredPos;
+
+        var btnImg = btnGo.AddComponent<Image>();
+        btnImg.color = bgColor;
+        var btn = btnGo.AddComponent<Button>();
+        btn.targetGraphic = btnImg;
+
+        GameObject textGo = CreateUIObject("Text", btnGo.transform);
+        StretchFull(textGo);
         var txt = textGo.AddComponent<TextMeshProUGUI>();
-        txt.text = name;
-        txt.fontSize = 24;
+        txt.text = label;
+        txt.fontSize = fontSize;
         txt.alignment = TextAlignmentOptions.Center;
-        txt.color = Color.black;
+        txt.color = textColor;
 
-        var scalePan = panGo.AddComponent<UIScalePan>();
-        
-        // Setup layour point for putting weights
-        GameObject placement = new GameObject("WeightPlacement");
-        placement.transform.SetParent(panGo.transform, false);
-        var pRect = placement.AddComponent<RectTransform>();
-        pRect.anchorMin = new Vector2(0.5f, 0.5f); pRect.anchorMax = new Vector2(0.5f, 0.5f);
-        pRect.anchoredPosition = new Vector2(0, 100); // 100 px above pan
-        scalePan.weightPlacementPoint = placement.transform;
-
-        return scalePan;
+        return btn;
     }
 
-    private static UIWeightInteractable CreateWeight(Transform parent, string name, Vector2 anchoredPos, float weightVal, Color color, UIScalePan initialPan)
+    private static UIWeightInteractable CreateWeight(string name, float weightVal, float size, Color color, UIScalePan initialPan)
     {
-        GameObject wGo = new GameObject(name);
-        wGo.transform.SetParent(parent, false);
-        
-        var rect = wGo.AddComponent<RectTransform>();
-        rect.anchorMin = new Vector2(0.5f, 0.5f);
-        rect.anchorMax = new Vector2(0.5f, 0.5f);
-        // Size proportional to weight
-        rect.sizeDelta = new Vector2(80, 80) * (weightVal == 1 ? 1 : 1.3f); 
-        rect.anchoredPosition = anchoredPos;
+        GameObject wGo = CreateUIObject(name, initialPan.transform);
+        var rect = wGo.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(size, size);
 
         var img = wGo.AddComponent<Image>();
         img.color = color;
 
-        GameObject textGo = new GameObject("Label");
-        textGo.transform.SetParent(wGo.transform, false);
-        var tRect = textGo.AddComponent<RectTransform>();
-        tRect.anchorMin = Vector2.zero; tRect.anchorMax = Vector2.one;
-        tRect.sizeDelta = Vector2.zero;
-        var txt = textGo.AddComponent<TextMeshProUGUI>();
+        // Weight label
+        GameObject labelGo = CreateUIObject("Label", wGo.transform);
+        StretchFull(labelGo);
+        var txt = labelGo.AddComponent<TextMeshProUGUI>();
         txt.text = weightVal + " kg";
-        txt.fontSize = 20;
+        txt.fontSize = (int)(size * 0.28f);
         txt.alignment = TextAlignmentOptions.Center;
         txt.color = Color.black;
+        txt.fontStyle = FontStyles.Bold;
 
         var uiw = wGo.AddComponent<UIWeightInteractable>();
         uiw.weightValue = weightVal;
 
-        // Auto place in initial pan
-        if (initialPan != null)
-        {
-            initialPan.PlaceWeight(uiw);
-        }
+        // Place in pan
+        initialPan.PlaceWeight(uiw);
 
         return uiw;
     }
