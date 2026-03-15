@@ -37,6 +37,9 @@ namespace Puzzles.MetronomeUI
         [Header("State")]
         public bool isSolved = false;
 
+        [Header("Metronom")]
+        public GameObject metronomTrue;
+        public GameObject metronomFalse;
         public UIWeightInteractable HeldWeight { get; private set; }
 
         private Canvas _parentCanvas;
@@ -161,6 +164,9 @@ namespace Puzzles.MetronomeUI
             {
                 winText.text = "Senkronize ettin!";
                 winText.gameObject.SetActive(true);
+                metronomTrue.SetActive(true);
+                metronomFalse.SetActive(false);
+
             }
 
             StartCoroutine(CloseAfterDelay(3f));
