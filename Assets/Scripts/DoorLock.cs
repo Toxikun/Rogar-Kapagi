@@ -27,7 +27,6 @@ public class DoorLock : MonoBehaviour
         string entered = codeInput.text.Trim();
         if (entered == CORRECT_PASSWORD)
         {
-            gm.dialogBox.Show("Şifre doğru! Kapı açıldı!", 3f);
             gm.WinGame();
             gameObject.SetActive(false);
         }

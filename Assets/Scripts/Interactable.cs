@@ -58,6 +58,13 @@ public class Interactable : MonoBehaviour
                 break;
 
             case InteractableType.LockedDoor:
+                // Şifre paneli atanmışsa şifre panelini aç (Anahtar gereksinimini devre dışı bırakır)
+                if (safePopup != null)
+                {
+                    safePopup.SetActive(true);
+                    return;
+                }
+
                 string selected = gm.inventory.GetSelectedItem();
                 if (selected == requiredItem)
                 {
