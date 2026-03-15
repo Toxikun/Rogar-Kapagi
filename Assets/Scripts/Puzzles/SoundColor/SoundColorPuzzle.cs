@@ -163,8 +163,13 @@ namespace Puzzles.SoundColor
 
             if (winText != null)
             {
-                winText.text = "Senkronize ettin!";
+                winText.text = "Senkronize ettin!\n(Şifre: .3..)";
                 winText.gameObject.SetActive(true);
+            }
+
+            if (GameManager.Instance != null && GameManager.Instance.dialogBox != null)
+            {
+                GameManager.Instance.dialogBox.Show("Senkronize ettin! (Şifre: .3..)", 4f);
             }
 
             // Switch audio to horn

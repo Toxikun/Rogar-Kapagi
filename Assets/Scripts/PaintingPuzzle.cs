@@ -81,7 +81,7 @@ public class PaintingPuzzle : MonoBehaviour
         // KES!
         isCut = true;
         Debug.Log("Tablo kesildi!");
-        gm.dialogBox.Show("Ay bıçağı ile tabloyu kestin! Arkasında bir şey var...", 3f);
+        gm.dialogBox.Show("Ay bıçağı ile tabloyu kestin! Arkasında bir şey var... (Şifre: ...2)", 4f);
         StartCoroutine(FallAnimation(topPiece));
     }
 
