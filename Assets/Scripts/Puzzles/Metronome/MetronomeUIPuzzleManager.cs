@@ -164,9 +164,17 @@ namespace Puzzles.MetronomeUI
             {
                 winText.text = "Senkronize ettin!";
                 winText.gameObject.SetActive(true);
-                metronomTrue.SetActive(true);
-                metronomFalse.SetActive(false);
+            }
 
+            // Switch metronome visuals: desync → sync
+            if (metronomFalse != null) metronomFalse.SetActive(false);
+            if (metronomTrue != null)
+            {
+                metronomTrue.SetActive(true);
+                // Set the Animator parameter so MetronomSallanma plays
+                Animator trueAnim = metronomTrue.GetComponentInChildren<Animator>();
+                if (trueAnim != null)
+                    trueAnim.SetBool("metronomDone", true);
             }
 
             StartCoroutine(CloseAfterDelay(3f));
