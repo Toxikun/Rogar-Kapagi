@@ -212,7 +212,7 @@ public class MoonPuzzle : MonoBehaviour
         if (gm != null && gm.inventory != null)
         {
             gm.inventory.AddItem("Ay");
-            gm.dialogBox.Show("Ay'ı pencereden çektin! Envantere eklendi.", 3f);
+            gm.dialogBox.Show("Ay'ı pencereden çektin! Envantere eklendi. (Şifre: ..1.)", 4f);
         }
     }
 
