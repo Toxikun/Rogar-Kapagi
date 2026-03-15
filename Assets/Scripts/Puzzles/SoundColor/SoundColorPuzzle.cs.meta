@@ -1,2 +1,15 @@
 fileFormatVersion: 2
 guid: 6bc73baf921a9a442bfbff89258228a7
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - backgroundClip: {fileID: 8300000, guid: 17091c43cc079cb46be976de5a3a9b87, type: 3}
+  - solvedClip: {fileID: 8300000, guid: a583c1dea14d3bb43aa077394c88d000, type: 3}
+  - closeButton: {instanceID: 0}
+  - winText: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
