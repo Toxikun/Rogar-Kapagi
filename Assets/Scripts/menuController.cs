@@ -1,20 +1,26 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // Sahne yönetimi için bu þart!
+using UnityEngine.SceneManagement; // Sahne yï¿½netimi iï¿½in bu ï¿½art!
 
 public class menuController : MonoBehaviour
 {
-    // Start Butonu için metod
+    // Start Butonu iï¿½in metod
     public void StartGame()
     {
-        // "SampleScene" isimli sahneyi yükler. 
-        // Mevcut sahne (MainMenu) otomatik olarak kapanýr.
+        // "SampleScene" isimli sahneyi yï¿½kler. 
+        // Mevcut sahne (MainMenu) otomatik olarak kapanï¿½r.
+        SceneManager.LoadScene("gecis");
+    }
+        public void gecisGame()
+    {
+        // "SampleScene" isimli sahneyi yï¿½kler. 
+        // Mevcut sahne (MainMenu) otomatik olarak kapanï¿½r.
         SceneManager.LoadScene("SampleScene");
     }
 
-    // Quit Butonu için metod
+    // Quit Butonu iï¿½in metod
     public void QuitGame()
     {
-        Debug.Log("Oyundan çýkýldý!"); // Editörde çalýþtýðýný anlamak için
-        Application.Quit(); // Build alýnmýþ oyunda çalýþýr
+        Debug.Log("Oyundan ï¿½ï¿½kï¿½ldï¿½!"); // Editï¿½rde ï¿½alï¿½ï¿½tï¿½ï¿½ï¿½nï¿½ anlamak iï¿½in
+        Application.Quit(); // Build alï¿½nmï¿½ï¿½ oyunda ï¿½alï¿½ï¿½ï¿½r
     }
 }
