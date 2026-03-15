@@ -162,11 +162,24 @@ namespace Puzzles.MetronomeUI
 
             if (winText != null)
             {
-                winText.text = "Senkronize ettin!";
+                winText.text = "Senkronize ettin!\n(Şifre: 1...)";
                 winText.gameObject.SetActive(true);
-                metronomTrue.SetActive(true);
-                metronomFalse.SetActive(false);
+            }
 
+            if (GameManager.Instance != null && GameManager.Instance.dialogBox != null)
+            {
+                GameManager.Instance.dialogBox.Show("Senkronize ettin! (Şifre: 1...)", 4f);
+            }
+
+            // Switch metronome visuals: desync → sync
+            if (metronomFalse != null) metronomFalse.SetActive(false);
+            if (metronomTrue != null)
+            {
+                metronomTrue.SetActive(true);
+                // Set the Animator parameter so MetronomSallanma plays
+                Animator trueAnim = metronomTrue.GetComponentInChildren<Animator>();
+                if (trueAnim != null)
+                    trueAnim.SetBool("metronomDone", true);
             }
 
             StartCoroutine(CloseAfterDelay(3f));
