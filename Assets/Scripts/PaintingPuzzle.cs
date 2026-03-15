@@ -18,6 +18,10 @@ public class PaintingPuzzle : MonoBehaviour
     [Header("State")]
     public bool isCut = false;
 
+    [Header("Tablo")]
+    public GameObject Tablo;
+    public GameObject TabloAfter;
+
     // Üst parça butonu (kesme işlemi için tıklandığında)
     public Button paintingButton;
 
@@ -44,6 +48,11 @@ public class PaintingPuzzle : MonoBehaviour
 
     public void ClosePuzzle()
     {
+        if (TabloAfter!=null && isCut)
+        {
+            Tablo.SetActive(false);
+            TabloAfter.SetActive(true);
+        }
         if (puzzlePanel != null)
             puzzlePanel.SetActive(false);
     }

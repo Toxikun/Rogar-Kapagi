@@ -3,7 +3,15 @@
   "WorkspaceRootPath": "C:\\Users\\Orkun\\Desktop\\Unity Projeleri\\R\u00F6gar Kapa\u011F\u0131\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{6FAB9622-7E7E-E7DA-601C-AE18FFDC56C2}|Assembly-CSharp.csproj|c:\\users\\orkun\\desktop\\unity projeleri\\r\u00F6gar kapa\u011F\u0131\\assets\\scripts\\moonpuzzle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{6FAB9622-7E7E-E7DA-601C-AE18FFDC56C2}|Assembly-CSharp.csproj|c:\\users\\orkun\\desktop\\unity projeleri\\r\u00F6gar kapa\u011F\u0131\\assets\\scripts\\puzzles\\metronome\\metronomeuipuzzlemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6FAB9622-7E7E-E7DA-601C-AE18FFDC56C2}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\puzzles\\metronome\\metronomeuipuzzlemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6FAB9622-7E7E-E7DA-601C-AE18FFDC56C2}|Assembly-CSharp.csproj|C:\\Users\\Orkun\\Desktop\\Unity Projeleri\\R\u00F6gar Kapa\u011F\u0131\\assets\\scripts\\paintingpuzzle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6FAB9622-7E7E-E7DA-601C-AE18FFDC56C2}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\paintingpuzzle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6FAB9622-7E7E-E7DA-601C-AE18FFDC56C2}|Assembly-CSharp.csproj|C:\\Users\\Orkun\\Desktop\\Unity Projeleri\\R\u00F6gar Kapa\u011F\u0131\\assets\\scripts\\moonpuzzle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6FAB9622-7E7E-E7DA-601C-AE18FFDC56C2}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\moonpuzzle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -18,11 +26,36 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MetronomeUIPuzzleManager.cs",
+              "DocumentMoniker": "C:\\Users\\Orkun\\Desktop\\Unity Projeleri\\R\u00F6gar Kapa\u011F\u0131\\Assets\\Scripts\\Puzzles\\Metronome\\MetronomeUIPuzzleManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Puzzles\\Metronome\\MetronomeUIPuzzleManager.cs",
+              "ToolTip": "C:\\Users\\Orkun\\Desktop\\Unity Projeleri\\R\u00F6gar Kapa\u011F\u0131\\Assets\\Scripts\\Puzzles\\Metronome\\MetronomeUIPuzzleManager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Puzzles\\Metronome\\MetronomeUIPuzzleManager.cs",
+              "ViewState": "AgIAAJIAAAAAAAAAAAAIwLEAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-15T10:47:09.088Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "PaintingPuzzle.cs",
+              "DocumentMoniker": "C:\\Users\\Orkun\\Desktop\\Unity Projeleri\\R\u00F6gar Kapa\u011F\u0131\\Assets\\Scripts\\PaintingPuzzle.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\PaintingPuzzle.cs",
+              "ToolTip": "C:\\Users\\Orkun\\Desktop\\Unity Projeleri\\R\u00F6gar Kapa\u011F\u0131\\Assets\\Scripts\\PaintingPuzzle.cs",
+              "RelativeToolTip": "Assets\\Scripts\\PaintingPuzzle.cs",
+              "ViewState": "AgIAAEAAAAAAAAAAAAAUwFEAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-15T10:36:57.499Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "MoonDragHandler.cs",
               "DocumentMoniker": "C:\\Users\\Orkun\\Desktop\\Unity Projeleri\\R\u00F6gar Kapa\u011F\u0131\\Assets\\Scripts\\MoonDragHandler.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\MoonDragHandler.cs",
@@ -34,7 +67,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "MoonPuzzle.cs",
               "DocumentMoniker": "C:\\Users\\Orkun\\Desktop\\Unity Projeleri\\R\u00F6gar Kapa\u011F\u0131\\Assets\\Scripts\\MoonPuzzle.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\MoonPuzzle.cs",
@@ -42,8 +75,7 @@
               "RelativeToolTip": "Assets\\Scripts\\MoonPuzzle.cs",
               "ViewState": "AgIAAJ0AAAAAAAAAAAAjwKsAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-14T20:38:57.706Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-14T20:38:57.706Z"
             }
           ]
         }
